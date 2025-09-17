@@ -1,0 +1,31 @@
+{
+  "name": "full-stack-js",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Full stack monorepo (backend, frontend, shared)",
+  "packageManager": "pnpm@10.16.1",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter @full-stack-js/backend dev & pnpm -r --parallel --filter @full-stack-js/frontend dev",
+    "dev:backend": "pnpm --filter @full-stack-js/backend dev",
+    "dev:frontend": "pnpm --filter @full-stack-js/frontend dev",
+    "build": "pnpm -r build",
+    "build:backend": "pnpm --filter @full-stack-js/backend build",
+    "build:frontend": "pnpm --filter @full-stack-js/frontend build",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write ."
+  },
+  "eslintConfig": {
+    "env": { "es2022": true, "node": true, "browser": true },
+    "extends": ["eslint:recommended"],
+    "parserOptions": { "ecmaVersion": 2022, "sourceType": "module" },
+    "ignorePatterns": ["dist", "node_modules"],
+    "rules": {}
+  },
+  "prettier": {},
+  "devDependencies": {
+    "eslint": "^9.35.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.6.3",
+    "@types/node": "^20.14.15"
+  }
+}

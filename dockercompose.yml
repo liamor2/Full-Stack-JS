@@ -1,0 +1,75 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "mongodb://root:example@localhost:27017/admin", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks: [app-net]
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        NODE_VERSION: "22"
+    image: project-backend:dev
+    container_name: backend
+    working_dir: /repo/backend
+    command: pnpm dev
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+      MONGO_URI: mongodb://root:example@mongodb:27017/app?authSource=admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/repo
+      - /repo/node_modules
+      - /repo/backend/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [app-net]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NODE_VERSION: "22"
+    image: project-frontend:dev
+    container_name: frontend
+    working_dir: /repo/frontend
+    command: pnpm dev --host 0.0.0.0
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./:/repo
+      - /repo/node_modules
+      - /repo/frontend/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks: [app-net]
+
+volumes:
+  mongo_data:
+
+networks:
+  app-net:
+    driver: bridge
