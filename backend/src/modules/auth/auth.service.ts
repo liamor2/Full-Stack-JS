@@ -3,10 +3,11 @@ import jwt from "jsonwebtoken";
 import { randomUUID } from "crypto";
 import type { User, AuthTokens, JwtPayload } from "@full-stack-js/shared";
 import { RegisterRequestSchema, LoginRequestSchema } from "@full-stack-js/shared";
+import { CONFIG } from "../../config/env.js";
 
 const users: (User & { passwordHash: string })[] = [];
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
+const JWT_SECRET = CONFIG.jwtSecret;
 const ACCESS_TTL_SECONDS = 60 * 60;
 
 function toPublic(u: User & { passwordHash: string }): User {
