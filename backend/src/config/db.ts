@@ -1,22 +1,25 @@
 import mongoose from "mongoose";
 import { CONFIG } from "./env.js";
 
-const uri = CONFIG.mongoUri;
-
 mongoose.set("strictQuery", true);
 
-async function connect() {
+export async function connectDB(): Promise<typeof mongoose> {
   try {
-    await mongoose.connect(uri);
+    const conn = await mongoose.connect(CONFIG.mongoUri);
     console.log("[db] Connected to MongoDB");
+    return conn;
   } catch (err) {
     console.error("[db] MongoDB connection error", err);
-    process.exit(1);
+    throw err;
   }
 }
 
-process.on("SIGINT", async () => {
+export async function disconnectDB() {
   await mongoose.disconnect();
-  console.log("[db] Disconnected (SIGINT)");
+  console.log("[db] Disconnected");
+}
+
+process.on("SIGINT", async () => {
+  await disconnectDB();
   process.exit(0);
 });

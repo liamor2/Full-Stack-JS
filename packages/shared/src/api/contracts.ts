@@ -1,4 +1,4 @@
-import type { User, AuthTokens } from '../types/auth.js';
+import type { User, AuthTokens } from "../types/auth.js";
 
 export interface LoginResponse {
   user: User;

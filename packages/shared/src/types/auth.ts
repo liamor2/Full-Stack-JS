@@ -3,7 +3,7 @@ export interface User {
   email: string;
   username?: string;
   displayName?: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   createdAt: string;
   updatedAt?: string;
 }
@@ -16,7 +16,7 @@ export interface AuthTokens {
 export interface JwtPayload {
   sub: string;
   email: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   iat?: number;
   exp?: number;
 }

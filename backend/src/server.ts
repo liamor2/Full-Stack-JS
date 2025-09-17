@@ -1,7 +1,16 @@
-import app from "./app.js";
 import { CONFIG } from "./config/env.js";
-import "./config/db.js"; // side-effect: connect to DB
+import { connectDB } from "./config/db.js";
+import app from "./app.js";
 
-app.listen(CONFIG.port, () => {
-  console.log(`Backend listening on http://localhost:${CONFIG.port}`);
-});
+async function bootstrap() {
+  try {
+    await connectDB();
+    app.listen(CONFIG.port, () => {
+      console.log(`Backend listening on http://localhost:${CONFIG.port}`);
+    });
+  } catch {
+    process.exit(1);
+  }
+}
+
+bootstrap();
