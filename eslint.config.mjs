@@ -94,6 +94,7 @@ export default [
   },
   {
     ignores: [
+      "eslint.config.*",
       "**/dist/**",
       "**/node_modules/**",
       "**/*.d.ts",
