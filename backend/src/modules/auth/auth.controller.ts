@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import { register, login } from "./auth.service.js";
 
 export async function registerHandler(req: Request, res: Response) {

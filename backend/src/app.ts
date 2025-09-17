@@ -1,5 +1,6 @@
-import express, { type Express } from "express";
 import { greet, VERSION } from "@full-stack-js/shared";
+import express, { type Express } from "express";
+
 import authRoutes from "./modules/auth/auth.routes.js";
 
 const app: Express = express();

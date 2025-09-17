@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 import { CONFIG } from "./env.js";
 
 mongoose.set("strictQuery", true);

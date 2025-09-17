@@ -1,6 +1,6 @@
-import { CONFIG } from "./config/env.js";
-import { connectDB } from "./config/db.js";
 import app from "./app.js";
+import { connectDB } from "./config/db.js";
+import { CONFIG } from "./config/env.js";
 
 async function bootstrap() {
   try {
