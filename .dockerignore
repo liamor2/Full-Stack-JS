@@ -1,0 +1,13 @@
+# Exclude unnecessary files from build context
+node_modules
+**/node_modules
+**/dist
+dist
+.git
+.gitignore
+.DS_Store
+coverage
+npm-debug.log*
+yarn.lock
+.pnpm-debug.log
+.vscode
