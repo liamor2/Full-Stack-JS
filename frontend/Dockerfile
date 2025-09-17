@@ -7,7 +7,7 @@ ENV PATH=$PNPM_HOME:$PATH
 RUN corepack enable
 
 # Copy lock & workspace files first for caching
-COPY pnpm-workspace.yaml package.json tsconfig.base.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.base.json ./
 COPY packages/shared/package.json packages/shared/package.json
 COPY frontend/package.json frontend/package.json
 

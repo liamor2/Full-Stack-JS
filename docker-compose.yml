@@ -34,9 +34,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./:/repo
-      - /repo/node_modules
-      - /repo/backend/node_modules
+      - ./:/repo:cached
     depends_on:
       mongodb:
         condition: service_healthy
@@ -59,9 +57,7 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - ./:/repo
-      - /repo/node_modules
-      - /repo/frontend/node_modules
+      - ./:/repo:cached
     depends_on:
       - backend
     restart: unless-stopped
