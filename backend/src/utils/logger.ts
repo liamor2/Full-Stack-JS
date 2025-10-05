@@ -1,19 +1,23 @@
 import { pino } from "pino";
 import type { Logger } from "pino";
 
+/**
+ * Application root logger instance. Configured to pretty-print when a
+ * terminal-friendly transport is available. The log level can be adjusted
+ * via the LOG_LEVEL environment variable.
+ */
 export const rootLogger = pino({ level: process.env.LOG_LEVEL || "info", transport: { target: "pino-pretty", options: { colorize: true } } });
 
 export type RequestLogger = Logger;
 
 /**
- * Create a request-scoped child logger.
+ * Create a child logger bound to a specific request.
  *
- * This function creates a pino child logger that includes a small set of
- * contextual bindings (requestId, method, url). Use the returned logger for
- * structured logging inside request handlers and middleware.
+ * The returned logger will include the provided metadata on every log
+ * entry. Use this helper to produce request-scoped logs that are easier to
+ * correlate in multi-request environments.
  *
- * @param context - Partial request metadata to bind to the child logger.
- * @returns A pino Logger instance with the provided bindings.
+ * @param context - object with optional requestId, method and url.
  */
 export function createRequestLogger(context: { requestId?: string; method?: string; url?: string }): RequestLogger {
   const meta: Record<string, string> = {};

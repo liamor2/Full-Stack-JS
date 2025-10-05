@@ -3,6 +3,7 @@ import type { Document } from "mongoose";
 
 import { NotFoundError } from "../errors/http.error.js";
 import { CrudService } from "../services/crud.service.js";
+import { validateBody } from "../middleware/validate-body.js";
 
 type IdParam = { id: string };
 
@@ -23,7 +24,10 @@ type IdParam = { id: string };
 export function createCrudRouter<T extends Document>(service: CrudService<T>): Router {
   const router = Router();
 
-  router.post("/", async (req: Request, res: Response, next: NextFunction) => {
+  const createSchema = service.getOptions()?.createSchema;
+  const createHandlers = [] as Array<any>;
+  if (createSchema) createHandlers.push(validateBody(createSchema));
+  createHandlers.push(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await service.create(req.body, { req });
       res.status(201).json(result);
@@ -31,6 +35,7 @@ export function createCrudRouter<T extends Document>(service: CrudService<T>): R
       next(err);
     }
   });
+  router.post("/", ...createHandlers);
 
   router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
     try {
@@ -54,18 +59,19 @@ export function createCrudRouter<T extends Document>(service: CrudService<T>): R
     },
   );
 
-  router.put(
-    "/:id",
-    async (req: Request<IdParam>, res: Response, next: NextFunction) => {
-      try {
-        const updated = await service.update(req.params.id, req.body, { req });
-        if (!updated) throw new NotFoundError();
-        res.json(updated);
-      } catch (err) {
-        next(err);
-      }
-    },
-  );
+  const updateSchema = service.getOptions()?.updateSchema;
+  const updateHandlers = [] as Array<any>;
+  if (updateSchema) updateHandlers.push(validateBody(updateSchema));
+  updateHandlers.push(async (req: Request<IdParam>, res: Response, next: NextFunction) => {
+    try {
+      const updated = await service.update(req.params.id, req.body, { req });
+      if (!updated) throw new NotFoundError();
+      res.json(updated);
+    } catch (err) {
+      next(err);
+    }
+  });
+  router.put("/:id", ...updateHandlers);
 
   router.delete(
     "/:id",

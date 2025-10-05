@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 
 import { BadRequestError, HttpError } from "../../errors/http.error.js";
+import type { RequestWithUser } from "../../types/requests.js";
+
 
 import { register, login } from "./auth.service.js";
 
@@ -52,7 +54,7 @@ export async function loginHandler(req: Request, res: Response) {
  * @param req - Express Request with optional user attached
  * @param res - Express Response used to return the user
  */
-export function meHandler(req: Request, res: Response) {
-  const user = (req as Request & { user?: Record<string, unknown> }).user;
+export function meHandler(req: RequestWithUser, res: Response) {
+  const user = req.user;
   res.json({ user });
 }

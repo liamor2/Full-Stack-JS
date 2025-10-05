@@ -1,32 +1,29 @@
 import type { Request, Response, NextFunction } from "express";
 
 import { HttpError } from "../errors/http.error.js";
+import type { RequestWithLogger } from "../types/requests.js";
 import { rootLogger } from "../utils/logger.js";
 
 /**
- * Central Express error handler.
+ * Global Express error handling middleware.
  *
- * Maps known HttpError instances to their status and body. Other errors are
- * logged and returned as a generic 500 response.
+ * Behavior:
+ * - If the error is an instance of HttpError, respond with its status and
+ *   body shaped as { error, details }.
+ * - Otherwise log the error and return a generic 500 response.
+ *
+ * The middleware prefers a request-scoped logger when available at
+ * `req.logger` but falls back to the application root logger.
  */
-export function errorHandler(
-  err: unknown,
-  req: Request,
-  res: Response,
-  _next: NextFunction,
-) {
+export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
   void _next;
-  const reqLogger = (req as Request & {
-    logger?: { error?: (...args: unknown[]) => void };
-  }).logger as { error?: (...args: unknown[]) => void } | undefined;
+  const reqLogger = (req as RequestWithLogger).logger;
   if (err instanceof HttpError) {
-    if (reqLogger?.error) reqLogger.error("HttpError", err);
-    return res
-      .status(err.status)
-      .json({ error: err.message, details: err.details });
+    reqLogger?.error?.("HttpError", err);
+    return res.status(err.status).json({ error: err.message, details: err.details });
   }
-  if (reqLogger?.error) reqLogger.error("Unhandled error:", err);
-  else rootLogger.error({ err }, "Unhandled error");
+  reqLogger?.error?.("Unhandled error:", err);
+  if (!reqLogger) rootLogger.error({ err }, "Unhandled error");
   return res.status(500).json({ error: "Internal Server Error" });
 }
 

@@ -1,6 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 
 import { UnauthorizedError, BadRequestError } from "../../errors/http.error.js";
+import type { RequestWithUser } from "../../types/requests.js";
+
 
 import { verifyJwt, getUserById } from "./auth.service.js";
 
@@ -14,7 +16,7 @@ import { verifyJwt, getUserById } from "./auth.service.js";
  * @param res - Express Response
  * @param next - Express NextFunction
  */
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+export function requireAuth(req: RequestWithUser, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer "))
     throw new BadRequestError("Missing token");
@@ -23,7 +25,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     const payload = verifyJwt(token);
     const user = getUserById(payload.sub);
     if (!user) throw new UnauthorizedError("Invalid token");
-    (req as Request & { user?: unknown }).user = user;
+  req.user = user as unknown as { id?: string; role?: string };
     next();
   } catch (e) {
     const err = e as unknown;
