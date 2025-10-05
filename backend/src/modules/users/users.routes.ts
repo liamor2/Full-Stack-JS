@@ -1,14 +1,16 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request } from "express";
 
 import createCrudRouter from "../../routes/crud.router.js";
 import { requireAuth } from "../auth/auth.middleware.js";
+
 
 import usersService from "./users.service.js";
 
 const router: IRouter = Router();
 
 router.get("/me", requireAuth, (req, res) => {
-  res.json({ user: (req as any).user });
+  const user = (req as unknown as Request & { user?: Record<string, unknown> }).user;
+  res.json({ user });
 });
 
 router.use("/", createCrudRouter(usersService));

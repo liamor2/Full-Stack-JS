@@ -9,9 +9,10 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ) {
-  const reqLogger = (req as any).logger as
-    | { error?: (...args: unknown[]) => void }
-    | undefined;
+  void _next;
+  const reqLogger = (req as Request & {
+    logger?: { error?: (...args: unknown[]) => void };
+  }).logger as { error?: (...args: unknown[]) => void } | undefined;
   if (err instanceof HttpError) {
     if (reqLogger?.error) reqLogger.error("HttpError", err);
     return res

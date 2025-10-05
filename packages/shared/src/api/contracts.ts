@@ -5,7 +5,7 @@ export interface LoginResponse {
   tokens: AuthTokens;
 }
 
-export interface RegisterResponse extends LoginResponse {}
+export type RegisterResponse = LoginResponse;
 
 export interface MeResponse {
   user: User;

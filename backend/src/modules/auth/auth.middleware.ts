@@ -13,10 +13,11 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     const payload = verifyJwt(token);
     const user = getUserById(payload.sub);
     if (!user) throw new UnauthorizedError("Invalid token");
-    (req as any).user = user;
+    (req as Request & { user?: unknown }).user = user;
     next();
   } catch (e) {
-    if (e instanceof UnauthorizedError || e instanceof BadRequestError) throw e;
+    const err = e as unknown;
+    if (err instanceof UnauthorizedError || err instanceof BadRequestError) throw err;
     throw new UnauthorizedError("Invalid token");
   }
 }

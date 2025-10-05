@@ -1,9 +1,13 @@
+import type { Request } from "express";
+
 import { User, IUser } from "../../models/users.model.js";
 import CrudService from "../../services/crud.service.js";
 
+type ReqWithUser = Request & { user?: { id?: string; role?: string } };
+
 class UsersService extends CrudService<IUser> {
   constructor() {
-    super(User as any, {
+    super(User, {
       publicFields: [
         "_id",
         "id",
@@ -17,9 +21,7 @@ class UsersService extends CrudService<IUser> {
         "updatedBy",
       ] as Array<keyof IUser>,
       allow: async (action, { req, resource }) => {
-        const user = (req as any)?.user as
-          | { id?: string; role?: string }
-          | undefined;
+        const user = (req as ReqWithUser | undefined)?.user;
         if (!user) {
           return action === "create";
         }
@@ -27,9 +29,9 @@ class UsersService extends CrudService<IUser> {
         if (action === "list") return false;
         if (action === "create") return true;
         if (resource) {
-          const resId = (resource as any)._id
-            ? (resource as any)._id.toString()
-            : (resource as any).id;
+          // resource may be a Mongoose document with _id or a plain object with id
+          const maybe = resource as unknown as { _id?: { toString: () => string }; id?: string };
+          const resId = maybe._id ? maybe._id.toString() : maybe.id;
           return resId === user.id;
         }
         return false;

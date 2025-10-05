@@ -1,11 +1,12 @@
 import { Router, Request, Response, NextFunction } from "express";
+import type { Document } from "mongoose";
 
 import { NotFoundError } from "../errors/http.error.js";
 import { CrudService } from "../services/crud.service.js";
 
 type IdParam = { id: string };
 
-export function createCrudRouter(service: CrudService<any>): Router {
+export function createCrudRouter<T extends Document>(service: CrudService<T>): Router {
   const router = Router();
 
   router.post("/", async (req: Request, res: Response, next: NextFunction) => {
