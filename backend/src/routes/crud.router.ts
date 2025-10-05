@@ -8,48 +8,53 @@ export function createCrudRouter(service: CrudService<any>): Router {
 
   router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await service.create(req.body);
+      const result = await service.create(req.body, { req });
       res.status(201).json(result);
     } catch (err) {
+      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
       next(err);
     }
   });
 
   router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const items = await service.findAll();
+      const items = await service.findAll({}, { req: _req });
       res.json(items);
     } catch (err) {
+      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
       next(err);
     }
   });
 
   router.get("/:id", async (req: Request<IdParam>, res: Response, next: NextFunction) => {
     try {
-      const item = await service.findById(req.params.id);
+      const item = await service.findById(req.params.id, { req });
       if (!item) return res.status(404).json({ error: "Not found" });
       res.json(item);
     } catch (err) {
+      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
       next(err);
     }
   });
 
   router.put("/:id", async (req: Request<IdParam>, res: Response, next: NextFunction) => {
     try {
-      const updated = await service.update(req.params.id, req.body);
+      const updated = await service.update(req.params.id, req.body, { req });
       if (!updated) return res.status(404).json({ error: "Not found" });
       res.json(updated);
     } catch (err) {
+      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
       next(err);
     }
   });
 
   router.delete("/:id", async (req: Request<IdParam>, res: Response, next: NextFunction) => {
     try {
-      const deleted = await service.remove(req.params.id);
+      const deleted = await service.remove(req.params.id, { req });
       if (!deleted) return res.status(404).json({ error: "Not found" });
       res.json(deleted);
     } catch (err) {
+      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
       next(err);
     }
   });
