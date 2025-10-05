@@ -1,4 +1,10 @@
-import { Router, Request, Response, NextFunction, RequestHandler } from "express";
+import {
+  Router,
+  Request,
+  Response,
+  NextFunction,
+  RequestHandler,
+} from "express";
 import type { Document } from "mongoose";
 
 import { NotFoundError } from "../errors/http.error.js";
@@ -21,20 +27,24 @@ type IdParam = { id: string };
  * The service instance provided will be used directly; permission checks
  * and validation are performed by the service.
  */
-export function createCrudRouter<T extends Document>(service: CrudService<T>): Router {
+export function createCrudRouter<T extends Document>(
+  service: CrudService<T>,
+): Router {
   const router = Router();
 
   const createSchema = service.getOptions()?.createSchema;
   const createHandlers = [] as Array<RequestHandler>;
   if (createSchema) createHandlers.push(validateBody(createSchema));
-  createHandlers.push(async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await service.create(req.body, { req });
-      res.status(201).json(result);
-    } catch (err) {
-      next(err);
-    }
-  });
+  createHandlers.push(
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const result = await service.create(req.body, { req });
+        res.status(201).json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
   router.post("/", ...createHandlers);
 
   router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
@@ -62,15 +72,17 @@ export function createCrudRouter<T extends Document>(service: CrudService<T>): R
   const updateSchema = service.getOptions()?.updateSchema;
   const updateHandlers = [] as Array<RequestHandler<IdParam>>;
   if (updateSchema) updateHandlers.push(validateBody(updateSchema));
-  updateHandlers.push(async (req: Request<IdParam>, res: Response, next: NextFunction) => {
-    try {
-      const updated = await service.update(req.params.id, req.body, { req });
-      if (!updated) throw new NotFoundError();
-      res.json(updated);
-    } catch (err) {
-      next(err);
-    }
-  });
+  updateHandlers.push(
+    async (req: Request<IdParam>, res: Response, next: NextFunction) => {
+      try {
+        const updated = await service.update(req.params.id, req.body, { req });
+        if (!updated) throw new NotFoundError();
+        res.json(updated);
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
   router.put("/:id", ...updateHandlers);
 
   router.delete(

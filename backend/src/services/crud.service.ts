@@ -33,7 +33,10 @@ export type CrudOptions<T> = {
 export class CrudService<T extends Document> {
   protected options: CrudOptions<T> | undefined;
 
-  constructor(protected model: Model<T>, options?: CrudOptions<T>) {
+  constructor(
+    protected model: Model<T>,
+    options?: CrudOptions<T>,
+  ) {
     this.options = options;
   }
 
@@ -54,7 +57,8 @@ export class CrudService<T extends Document> {
    */
   protected sanitize(doc: T | Record<string, unknown> | null) {
     if (!doc) return null;
-    const obj = (doc as T & { toObject?: () => Record<string, unknown> }).toObject
+    const obj = (doc as T & { toObject?: () => Record<string, unknown> })
+      .toObject
       ? (doc as T & { toObject: () => Record<string, unknown> }).toObject()
       : (doc as Record<string, unknown>);
     if (!this.options?.publicFields) return obj;
@@ -77,16 +81,22 @@ export class CrudService<T extends Document> {
    */
   async create(data: Partial<T>, ctx: { req?: Request } = {}) {
     if (this.options?.allow) {
-      const ok = await this.options.allow("create", { req: ctx.req, resource: null });
+      const ok = await this.options.allow("create", {
+        req: ctx.req,
+        resource: null,
+      });
       if (!ok) throw new ForbiddenError();
     }
     if (this.options?.createSchema) {
       const res = await this.options.createSchema.safeParseAsync(data);
-      if (!res.success) throw new BadRequestError("Validation failed", res.error.format());
+      if (!res.success)
+        throw new BadRequestError("Validation failed", res.error.format());
       data = res.data as Partial<T>;
     }
     const doc = await this.model.create(data as unknown as T);
-    return this.sanitize((doc as T & { toObject: () => Record<string, unknown> }).toObject());
+    return this.sanitize(
+      (doc as T & { toObject: () => Record<string, unknown> }).toObject(),
+    );
   }
 
   /**
@@ -96,26 +106,49 @@ export class CrudService<T extends Document> {
    * @param filter - Mongo filter
    * @param ctx    - optional context
    */
-  async findAll(filter = {}, ctx: { req?: Request } = {}): Promise<Array<Record<string, unknown>>> {
+  async findAll(
+    filter = {},
+    ctx: { req?: Request } = {},
+  ): Promise<Array<Record<string, unknown>>> {
     if (this.options?.allow) {
-      const ok = await this.options.allow("list", { req: ctx.req, resource: null });
+      const ok = await this.options.allow("list", {
+        req: ctx.req,
+        resource: null,
+      });
       if (!ok) throw new ForbiddenError();
     }
-    const docs = await this.model.find(filter as unknown as Record<string, unknown>).lean().exec();
-    return (docs as Array<Record<string, unknown>>).map((d) => this.sanitize(d) as Record<string, unknown>);
+    const docs = await this.model
+      .find(filter as unknown as Record<string, unknown>)
+      .lean()
+      .exec();
+    return (docs as Array<Record<string, unknown>>).map(
+      (d) => this.sanitize(d) as Record<string, unknown>,
+    );
   }
 
   /**
    * Find one document by id and return a sanitized plain object.
    * Permission is checked with `allow('read')` when configured.
    */
-  async findById(id: ID, ctx: { req?: Request } = {}): Promise<Record<string, unknown> | null> {
-    const doc = await this.model.findById(id as unknown as Types.ObjectId | string).lean().exec();
+  async findById(
+    id: ID,
+    ctx: { req?: Request } = {},
+  ): Promise<Record<string, unknown> | null> {
+    const doc = await this.model
+      .findById(id as unknown as Types.ObjectId | string)
+      .lean()
+      .exec();
     if (this.options?.allow) {
-      const ok = await this.options.allow("read", { req: ctx.req, resource: doc as Record<string, unknown> | null });
+      const ok = await this.options.allow("read", {
+        req: ctx.req,
+        resource: doc as Record<string, unknown> | null,
+      });
       if (!ok) throw new ForbiddenError();
     }
-    return this.sanitize(doc as Record<string, unknown> | null) as Record<string, unknown> | null;
+    return this.sanitize(doc as Record<string, unknown> | null) as Record<
+      string,
+      unknown
+    > | null;
   }
 
   /**
@@ -123,33 +156,69 @@ export class CrudService<T extends Document> {
    * provided and enforces `allow('update')` if configured. Returns the
    * sanitized plain object for the updated resource or null if not found.
    */
-  async update(id: ID, data: Partial<T>, ctx: { req?: Request } = {}): Promise<Record<string, unknown> | null> {
-    const existing = await this.model.findById(id as unknown as Types.ObjectId | string).lean().exec();
+  async update(
+    id: ID,
+    data: Partial<T>,
+    ctx: { req?: Request } = {},
+  ): Promise<Record<string, unknown> | null> {
+    const existing = await this.model
+      .findById(id as unknown as Types.ObjectId | string)
+      .lean()
+      .exec();
     if (this.options?.allow) {
-      const ok = await this.options.allow("update", { req: ctx.req, resource: existing as Record<string, unknown> | null });
+      const ok = await this.options.allow("update", {
+        req: ctx.req,
+        resource: existing as Record<string, unknown> | null,
+      });
       if (!ok) throw new ForbiddenError();
     }
     if (this.options?.updateSchema) {
       const res = await this.options.updateSchema.safeParseAsync(data);
-      if (!res.success) throw new BadRequestError("Validation failed", res.error.format());
+      if (!res.success)
+        throw new BadRequestError("Validation failed", res.error.format());
       data = res.data as Partial<T>;
     }
-    const updated = await this.model.findOneAndUpdate({ _id: id as unknown as Types.ObjectId | string }, data as unknown as Partial<T>, { new: true }).lean().exec();
-    return this.sanitize(updated as Record<string, unknown> | null) as Record<string, unknown> | null;
+    const updated = await this.model
+      .findOneAndUpdate(
+        { _id: id as unknown as Types.ObjectId | string },
+        data as unknown as Partial<T>,
+        { new: true },
+      )
+      .lean()
+      .exec();
+    return this.sanitize(updated as Record<string, unknown> | null) as Record<
+      string,
+      unknown
+    > | null;
   }
 
   /**
    * Delete a document by id after enforcing `allow('delete')` when
    * configured. Returns the sanitized deleted resource or null if not found.
    */
-  async remove(id: ID, ctx: { req?: Request } = {}): Promise<Record<string, unknown> | null> {
-    const existing = await this.model.findById(id as unknown as Types.ObjectId | string).lean().exec();
+  async remove(
+    id: ID,
+    ctx: { req?: Request } = {},
+  ): Promise<Record<string, unknown> | null> {
+    const existing = await this.model
+      .findById(id as unknown as Types.ObjectId | string)
+      .lean()
+      .exec();
     if (this.options?.allow) {
-      const ok = await this.options.allow("delete", { req: ctx.req, resource: existing as Record<string, unknown> | null });
+      const ok = await this.options.allow("delete", {
+        req: ctx.req,
+        resource: existing as Record<string, unknown> | null,
+      });
       if (!ok) throw new ForbiddenError();
     }
-    const deleted = await this.model.findByIdAndDelete(id as unknown as Types.ObjectId | string).lean().exec();
-    return this.sanitize(deleted as Record<string, unknown> | null) as Record<string, unknown> | null;
+    const deleted = await this.model
+      .findByIdAndDelete(id as unknown as Types.ObjectId | string)
+      .lean()
+      .exec();
+    return this.sanitize(deleted as Record<string, unknown> | null) as Record<
+      string,
+      unknown
+    > | null;
   }
 }
 

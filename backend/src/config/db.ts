@@ -31,7 +31,6 @@ export async function disconnectDB() {
   rootLogger.info("db.disconnected");
 }
 
-// Graceful shutdown on SIGINT (Ctrl+C): disconnect and exit.
 process.on("SIGINT", async () => {
   await disconnectDB();
   process.exit(0);

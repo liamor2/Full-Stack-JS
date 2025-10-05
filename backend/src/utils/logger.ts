@@ -6,7 +6,10 @@ import type { Logger } from "pino";
  * terminal-friendly transport is available. The log level can be adjusted
  * via the LOG_LEVEL environment variable.
  */
-export const rootLogger = pino({ level: process.env.LOG_LEVEL || "info", transport: { target: "pino-pretty", options: { colorize: true } } });
+export const rootLogger = pino({
+  level: process.env.LOG_LEVEL || "info",
+  transport: { target: "pino-pretty", options: { colorize: true } },
+});
 
 export type RequestLogger = Logger;
 
@@ -19,7 +22,11 @@ export type RequestLogger = Logger;
  *
  * @param context - object with optional requestId, method and url.
  */
-export function createRequestLogger(context: { requestId?: string; method?: string; url?: string }): RequestLogger {
+export function createRequestLogger(context: {
+  requestId?: string;
+  method?: string;
+  url?: string;
+}): RequestLogger {
   const meta: Record<string, string> = {};
   if (context.requestId) meta.requestId = context.requestId;
   if (context.method) meta.method = context.method;

@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { BadRequestError, HttpError } from "../../errors/http.error.js";
 import type { RequestWithUser } from "../../types/requests.js";
 
-
 import { register, login } from "./auth.service.js";
 
 /**

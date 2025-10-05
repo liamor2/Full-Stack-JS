@@ -31,7 +31,10 @@ class UsersService extends CrudService<IUser> {
         if (action === "list") return false;
         if (action === "create") return true;
         if (resource) {
-          const maybe = resource as unknown as { _id?: { toString: () => string }; id?: string };
+          const maybe = resource as unknown as {
+            _id?: { toString: () => string };
+            id?: string;
+          };
           const resId = maybe._id ? maybe._id.toString() : maybe.id;
           return resId === user.id;
         }

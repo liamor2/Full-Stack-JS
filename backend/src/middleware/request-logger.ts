@@ -17,9 +17,17 @@ import { createRequestLogger, type RequestLogger } from "../utils/logger.js";
  * @param _res - Express response object (unused).
  * @param next - Express next function.
  */
-export function requestLogger(req: RequestWithLogger, _res: Response, next: NextFunction) {
+export function requestLogger(
+  req: RequestWithLogger,
+  _res: Response,
+  next: NextFunction,
+) {
   const id = crypto.randomUUID();
-  const logger: RequestLogger = createRequestLogger({ requestId: id, method: req.method, url: req.originalUrl });
+  const logger: RequestLogger = createRequestLogger({
+    requestId: id,
+    method: req.method,
+    url: req.originalUrl,
+  });
   req.logger = logger;
   next();
 }

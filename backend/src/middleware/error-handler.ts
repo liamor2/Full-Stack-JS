@@ -15,12 +15,19 @@ import { rootLogger } from "../utils/logger.js";
  * The middleware prefers a request-scoped logger when available at
  * `req.logger` but falls back to the application root logger.
  */
-export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(
+  err: unknown,
+  req: Request,
+  res: Response,
+  _next: NextFunction,
+) {
   void _next;
   const reqLogger = (req as RequestWithLogger).logger;
   if (err instanceof HttpError) {
     reqLogger?.error?.("HttpError", err);
-    return res.status(err.status).json({ error: err.message, details: err.details });
+    return res
+      .status(err.status)
+      .json({ error: err.message, details: err.details });
   }
   reqLogger?.error?.("Unhandled error:", err);
   if (!reqLogger) rootLogger.error({ err }, "Unhandled error");
