@@ -1,7 +1,6 @@
 services:
   mongodb:
     image: mongo:7
-    container_name: mongodb
     ports:
       - "27017:27017"
     environment:
@@ -31,8 +30,8 @@ services:
       dockerfile: backend/Dockerfile
       args:
         NODE_VERSION: "22"
+        NODE_ENV: ${NODE_ENV}
     image: project-backend:dev
-    container_name: backend
     working_dir: /repo/backend
     command: pnpm dev
     environment:
@@ -43,7 +42,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./:/repo:cached
+      - ./backend:/repo/backend:cached
+      - ./packages/shared:/repo/packages/shared:cached
+      - node_modules_backend:/repo/backend/node_modules
+      - node_modules_shared:/repo/packages/shared/node_modules
     depends_on:
       mongodb:
         condition: service_healthy
@@ -56,8 +58,8 @@ services:
       dockerfile: frontend/Dockerfile
       args:
         NODE_VERSION: "22"
+        NODE_ENV: ${NODE_ENV}
     image: project-frontend:dev
-    container_name: frontend
     working_dir: /repo/frontend
     command: pnpm dev --host 0.0.0.0
     environment:
@@ -74,6 +76,8 @@ services:
 
 volumes:
   mongo_data:
+  node_modules_backend:
+  node_modules_shared:
 
 networks:
   app-net:
