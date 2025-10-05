@@ -1,4 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
+
+import { NotFoundError } from "../errors/http.error.js";
 import { CrudService } from "../services/crud.service.js";
 
 type IdParam = { id: string };
@@ -29,8 +31,7 @@ export function createCrudRouter(service: CrudService<any>): Router {
     async (req: Request<IdParam>, res: Response, next: NextFunction) => {
       try {
         const item = await service.findById(req.params.id, { req });
-        if (!item)
-          throw new (await import("../errors/http.error.js")).NotFoundError();
+        if (!item) throw new NotFoundError();
         res.json(item);
       } catch (err) {
         next(err);
@@ -43,8 +44,7 @@ export function createCrudRouter(service: CrudService<any>): Router {
     async (req: Request<IdParam>, res: Response, next: NextFunction) => {
       try {
         const updated = await service.update(req.params.id, req.body, { req });
-        if (!updated)
-          throw new (await import("../errors/http.error.js")).NotFoundError();
+        if (!updated) throw new NotFoundError();
         res.json(updated);
       } catch (err) {
         next(err);
@@ -57,8 +57,7 @@ export function createCrudRouter(service: CrudService<any>): Router {
     async (req: Request<IdParam>, res: Response, next: NextFunction) => {
       try {
         const deleted = await service.remove(req.params.id, { req });
-        if (!deleted)
-          throw new (await import("../errors/http.error.js")).NotFoundError();
+        if (!deleted) throw new NotFoundError();
         res.json(deleted);
       } catch (err) {
         next(err);

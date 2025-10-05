@@ -1,7 +1,9 @@
 import { Router, type IRouter } from "express";
+
 import createCrudRouter from "../../routes/crud.router.js";
-import usersService from "./users.service.js";
 import { requireAuth } from "../auth/auth.middleware.js";
+
+import usersService from "./users.service.js";
 
 const router: IRouter = Router();
 

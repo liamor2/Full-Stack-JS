@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+
 import createBaseSchema, { BaseDoc } from "./base.model.js";
 
 export interface IUser extends BaseDoc {

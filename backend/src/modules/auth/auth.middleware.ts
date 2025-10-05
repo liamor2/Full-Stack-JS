@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 
-import { verifyJwt, getUserById } from "./auth.service.js";
 import { UnauthorizedError, BadRequestError } from "../../errors/http.error.js";
+
+import { verifyJwt, getUserById } from "./auth.service.js";
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;

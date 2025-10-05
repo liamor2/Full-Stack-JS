@@ -1,6 +1,5 @@
 import { User, IUser } from "../../models/users.model.js";
 import CrudService from "../../services/crud.service.js";
-import type { Request } from "express";
 
 class UsersService extends CrudService<IUser> {
   constructor() {
