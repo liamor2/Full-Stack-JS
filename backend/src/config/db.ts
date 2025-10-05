@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+import { rootLogger } from "../utils/logger.js";
+
 import { CONFIG } from "./env.js";
 
 mongoose.set("strictQuery", true);
@@ -7,17 +9,17 @@ mongoose.set("strictQuery", true);
 export async function connectDB(): Promise<typeof mongoose> {
   try {
     const conn = await mongoose.connect(CONFIG.mongoUri);
-    console.log("[db] Connected to MongoDB");
+    rootLogger.info({ mongoUri: CONFIG.mongoUri }, "db.connected");
     return conn;
   } catch (err) {
-    console.error("[db] MongoDB connection error", err);
+    rootLogger.error({ err }, "db.connection_error");
     throw err;
   }
 }
 
 export async function disconnectDB() {
   await mongoose.disconnect();
-  console.log("[db] Disconnected");
+  rootLogger.info("db.disconnected");
 }
 
 process.on("SIGINT", async () => {
