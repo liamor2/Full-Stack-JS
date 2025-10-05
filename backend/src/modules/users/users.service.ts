@@ -18,7 +18,9 @@ class UsersService extends CrudService<IUser> {
         "updatedBy",
       ] as Array<keyof IUser>,
       allow: async (action, { req, resource }) => {
-        const user = (req as any)?.user as { id?: string; role?: string } | undefined;
+        const user = (req as any)?.user as
+          | { id?: string; role?: string }
+          | undefined;
         if (!user) {
           return action === "create";
         }
@@ -26,7 +28,9 @@ class UsersService extends CrudService<IUser> {
         if (action === "list") return false;
         if (action === "create") return true;
         if (resource) {
-          const resId = (resource as any)._id ? (resource as any)._id.toString() : (resource as any).id;
+          const resId = (resource as any)._id
+            ? (resource as any)._id.toString()
+            : (resource as any).id;
           return resId === user.id;
         }
         return false;

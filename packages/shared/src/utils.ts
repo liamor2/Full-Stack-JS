@@ -1,4 +1,7 @@
-export function pick<T extends Record<string, any>>(obj: T | null | undefined, fields: Array<keyof T>): Partial<T> | null {
+export function pick<T extends Record<string, any>>(
+  obj: T | null | undefined,
+  fields: Array<keyof T>,
+): Partial<T> | null {
   if (!obj) return null;
   const out: Partial<T> = {};
   for (const f of fields) {
@@ -7,7 +10,10 @@ export function pick<T extends Record<string, any>>(obj: T | null | undefined, f
   return out;
 }
 
-export function omit<T extends Record<string, any>>(obj: T | null | undefined, fields: Array<keyof T>): Partial<T> | null {
+export function omit<T extends Record<string, any>>(
+  obj: T | null | undefined,
+  fields: Array<keyof T>,
+): Partial<T> | null {
   if (!obj) return null;
   const out: Partial<T> = {};
   for (const k of Object.keys(obj) as Array<keyof T>) {

@@ -24,35 +24,47 @@ export function createCrudRouter(service: CrudService<any>): Router {
     }
   });
 
-  router.get("/:id", async (req: Request<IdParam>, res: Response, next: NextFunction) => {
-    try {
-      const item = await service.findById(req.params.id, { req });
-      if (!item) return res.status(404).json({ error: "Not found" });
-      res.json(item);
-    } catch (err) {
-      next(err);
-    }
-  });
+  router.get(
+    "/:id",
+    async (req: Request<IdParam>, res: Response, next: NextFunction) => {
+      try {
+        const item = await service.findById(req.params.id, { req });
+        if (!item)
+          throw new (await import("../errors/http.error.js")).NotFoundError();
+        res.json(item);
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
 
-  router.put("/:id", async (req: Request<IdParam>, res: Response, next: NextFunction) => {
-    try {
-      const updated = await service.update(req.params.id, req.body, { req });
-      if (!updated) return res.status(404).json({ error: "Not found" });
-      res.json(updated);
-    } catch (err) {
-      next(err);
-    }
-  });
+  router.put(
+    "/:id",
+    async (req: Request<IdParam>, res: Response, next: NextFunction) => {
+      try {
+        const updated = await service.update(req.params.id, req.body, { req });
+        if (!updated)
+          throw new (await import("../errors/http.error.js")).NotFoundError();
+        res.json(updated);
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
 
-  router.delete("/:id", async (req: Request<IdParam>, res: Response, next: NextFunction) => {
-    try {
-      const deleted = await service.remove(req.params.id, { req });
-      if (!deleted) return res.status(404).json({ error: "Not found" });
-      res.json(deleted);
-    } catch (err) {
-      next(err);
-    }
-  });
+  router.delete(
+    "/:id",
+    async (req: Request<IdParam>, res: Response, next: NextFunction) => {
+      try {
+        const deleted = await service.remove(req.params.id, { req });
+        if (!deleted)
+          throw new (await import("../errors/http.error.js")).NotFoundError();
+        res.json(deleted);
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
 
   return router;
 }

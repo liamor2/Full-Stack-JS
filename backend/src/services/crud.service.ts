@@ -6,17 +6,29 @@ export type ID = string | Types.ObjectId;
 
 export type CrudOptions<T> = {
   publicFields?: Array<keyof T>;
-  allow?: (action: "list" | "read" | "create" | "update" | "delete", ctx: { req?: Request; resource?: T | null }) => boolean | Promise<boolean>;
+  allow?: (
+    action: "list" | "read" | "create" | "update" | "delete",
+    ctx: { req?: Request; resource?: T | null },
+  ) => boolean | Promise<boolean>;
 };
 
 export class CrudService<T extends Document> {
   protected options: CrudOptions<T> | undefined;
 
-  constructor(protected model: Model<T>, options?: CrudOptions<T>) {
+  constructor(
+    protected model: Model<T>,
+    options?: CrudOptions<T>,
+  ) {
     this.options = options;
   }
 
-  protected async check(action: CrudOptions<T>["allow"] extends infer A ? (A extends Function ? never : never) : never) {
+  protected async check(
+    action: CrudOptions<T>["allow"] extends infer A
+      ? A extends Function
+        ? never
+        : never
+      : never,
+  ) {
     return true;
   }
 
@@ -33,7 +45,10 @@ export class CrudService<T extends Document> {
 
   async create(data: Partial<T>, ctx: { req?: Request } = {}) {
     if (this.options?.allow) {
-      const ok = await this.options.allow("create", { req: ctx.req, resource: null });
+      const ok = await this.options.allow("create", {
+        req: ctx.req,
+        resource: null,
+      });
       if (!ok) throw new ForbiddenError();
     }
     const doc = await this.model.create(data as any);
@@ -42,7 +57,10 @@ export class CrudService<T extends Document> {
 
   async findAll(filter = {}, ctx: { req?: Request } = {}) {
     if (this.options?.allow) {
-      const ok = await this.options.allow("list", { req: ctx.req, resource: null });
+      const ok = await this.options.allow("list", {
+        req: ctx.req,
+        resource: null,
+      });
       if (!ok) throw new ForbiddenError();
     }
     const docs = await this.model.find(filter as any).exec();
@@ -52,7 +70,10 @@ export class CrudService<T extends Document> {
   async findById(id: ID, ctx: { req?: Request } = {}) {
     const doc = await this.model.findById(id as any).exec();
     if (this.options?.allow) {
-      const ok = await this.options.allow("read", { req: ctx.req, resource: doc as any });
+      const ok = await this.options.allow("read", {
+        req: ctx.req,
+        resource: doc as any,
+      });
       if (!ok) throw new ForbiddenError();
     }
     return this.sanitize(doc as T | null);
@@ -61,17 +82,25 @@ export class CrudService<T extends Document> {
   async update(id: ID, data: Partial<T>, ctx: { req?: Request } = {}) {
     const existing = await this.model.findById(id as any).exec();
     if (this.options?.allow) {
-      const ok = await this.options.allow("update", { req: ctx.req, resource: existing as any });
+      const ok = await this.options.allow("update", {
+        req: ctx.req,
+        resource: existing as any,
+      });
       if (!ok) throw new ForbiddenError();
     }
-    const updated = await this.model.findByIdAndUpdate(id as any, data as any, { new: true }).exec();
+    const updated = await this.model
+      .findByIdAndUpdate(id as any, data as any, { new: true })
+      .exec();
     return this.sanitize(updated as T | null);
   }
 
   async remove(id: ID, ctx: { req?: Request } = {}) {
     const existing = await this.model.findById(id as any).exec();
     if (this.options?.allow) {
-      const ok = await this.options.allow("delete", { req: ctx.req, resource: existing as any });
+      const ok = await this.options.allow("delete", {
+        req: ctx.req,
+        resource: existing as any,
+      });
       if (!ok) throw new ForbiddenError();
     }
     const deleted = await this.model.findByIdAndDelete(id as any).exec();

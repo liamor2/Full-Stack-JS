@@ -8,7 +8,10 @@ export interface BaseDoc extends mongoose.Document {
   updatedAt?: Date;
 }
 
-export function createBaseSchema(definition: mongoose.SchemaDefinition, options?: mongoose.SchemaOptions) {
+export function createBaseSchema(
+  definition: mongoose.SchemaDefinition,
+  options?: mongoose.SchemaOptions,
+) {
   const baseDefinition: mongoose.SchemaDefinition = {
     isActive: { type: Boolean, default: true },
     createdBy: { type: String, required: false },
@@ -16,7 +19,10 @@ export function createBaseSchema(definition: mongoose.SchemaDefinition, options?
     ...definition,
   };
 
-  const schema = new mongoose.Schema(baseDefinition, { timestamps: true, ...(options || {}) });
+  const schema = new mongoose.Schema(baseDefinition, {
+    timestamps: true,
+    ...(options || {}),
+  });
 
   return schema;
 }
