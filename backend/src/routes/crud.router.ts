@@ -1,9 +1,9 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router, Request, Response, NextFunction, RequestHandler } from "express";
 import type { Document } from "mongoose";
 
 import { NotFoundError } from "../errors/http.error.js";
-import { CrudService } from "../services/crud.service.js";
 import { validateBody } from "../middleware/validate-body.js";
+import { CrudService } from "../services/crud.service.js";
 
 type IdParam = { id: string };
 
@@ -25,7 +25,7 @@ export function createCrudRouter<T extends Document>(service: CrudService<T>): R
   const router = Router();
 
   const createSchema = service.getOptions()?.createSchema;
-  const createHandlers = [] as Array<any>;
+  const createHandlers = [] as Array<RequestHandler>;
   if (createSchema) createHandlers.push(validateBody(createSchema));
   createHandlers.push(async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -60,7 +60,7 @@ export function createCrudRouter<T extends Document>(service: CrudService<T>): R
   );
 
   const updateSchema = service.getOptions()?.updateSchema;
-  const updateHandlers = [] as Array<any>;
+  const updateHandlers = [] as Array<RequestHandler<IdParam>>;
   if (updateSchema) updateHandlers.push(validateBody(updateSchema));
   updateHandlers.push(async (req: Request<IdParam>, res: Response, next: NextFunction) => {
     try {

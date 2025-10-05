@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import type { ZodTypeAny } from "zod";
+
 import { BadRequestError } from "../errors/http.error.js";
 
 /**
@@ -17,8 +18,7 @@ export function validateBody(schema: ZodTypeAny) {
       if (!parsed.success) {
         throw new BadRequestError("Validation failed", parsed.error.format());
       }
-      // write back the parsed/validated data
-      req.body = parsed.data;
+      req.body = parsed.data as Record<string, unknown>;
       return next();
     } catch (err) {
       return next(err);
