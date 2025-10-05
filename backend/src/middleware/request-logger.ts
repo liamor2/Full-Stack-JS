@@ -1,22 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
+import { v4 as uuidv4 } from "uuid";
 
 import { createRequestLogger } from "../utils/logger.js";
 
-function generateRequestId() {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-export function requestLogger(
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-) {
-  const id = generateRequestId();
-  const logger = createRequestLogger({
-    requestId: id,
-    method: req.method,
-    url: req.originalUrl,
-  });
+export function requestLogger(req: Request, _res: Response, next: NextFunction) {
+  const id = uuidv4();
+  const logger = createRequestLogger({ requestId: id, method: req.method, url: req.originalUrl });
   (req as any).logger = logger;
   next();
 }

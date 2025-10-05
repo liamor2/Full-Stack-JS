@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 
 import { HttpError } from "../errors/http.error.js";
+import { rootLogger } from "../utils/logger.js";
 
 export function errorHandler(
   err: unknown,
@@ -18,7 +19,7 @@ export function errorHandler(
       .json({ error: err.message, details: err.details });
   }
   if (reqLogger?.error) reqLogger.error("Unhandled error:", err);
-  else console.error("Unhandled error:", err);
+  else rootLogger.error({ err }, "Unhandled error");
   return res.status(500).json({ error: "Internal Server Error" });
 }
 
