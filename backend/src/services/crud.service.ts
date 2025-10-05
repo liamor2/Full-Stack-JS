@@ -1,12 +1,15 @@
 import type { Request } from "express";
 import { Model, Document, Types } from "mongoose";
+import { z } from "zod";
 
-import { ForbiddenError } from "../errors/http.error.js";
+import { ForbiddenError, BadRequestError } from "../errors/http.error.js";
 
 export type ID = string | Types.ObjectId;
 
 export type CrudOptions<T> = {
   publicFields?: Array<keyof T>;
+  createSchema?: z.ZodType;
+  updateSchema?: z.ZodType;
   allow?: (
     action: "list" | "read" | "create" | "update" | "delete",
     ctx: { req?: Request; resource?: T | null },
@@ -42,6 +45,15 @@ export class CrudService<T extends Document> {
       const ok = await this.options.allow("create", { req: ctx.req, resource: null });
       if (!ok) throw new ForbiddenError();
     }
+    // validate payload if schema provided
+    if (this.options?.createSchema) {
+      const res = await this.options.createSchema.safeParseAsync(data);
+      if (!res.success) {
+        throw new BadRequestError("Validation failed", res.error.format());
+      }
+      // use the parsed/validated data
+      data = res.data as Partial<T>;
+    }
     const doc = await this.model.create(data as unknown as T);
     return this.sanitize(doc as T);
   }
@@ -69,6 +81,14 @@ export class CrudService<T extends Document> {
     if (this.options?.allow) {
       const ok = await this.options.allow("update", { req: ctx.req, resource: existing as unknown as T | null });
       if (!ok) throw new ForbiddenError();
+    }
+    // validate payload if update schema provided
+    if (this.options?.updateSchema) {
+      const res = await this.options.updateSchema.safeParseAsync(data);
+      if (!res.success) {
+        throw new BadRequestError("Validation failed", res.error.format());
+      }
+      data = res.data as Partial<T>;
     }
     const updated = await this.model
       .findByIdAndUpdate(id as unknown as Types.ObjectId | string, data as unknown as Partial<T>, { new: true })
