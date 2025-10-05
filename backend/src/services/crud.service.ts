@@ -1,5 +1,6 @@
 import { Model, Document, Types } from "mongoose";
 import type { Request } from "express";
+import { ForbiddenError } from "../errors/forbidden.error.js";
 
 export type ID = string | Types.ObjectId;
 
@@ -33,7 +34,7 @@ export class CrudService<T extends Document> {
   async create(data: Partial<T>, ctx: { req?: Request } = {}) {
     if (this.options?.allow) {
       const ok = await this.options.allow("create", { req: ctx.req, resource: null });
-      if (!ok) throw new Error("Forbidden");
+      if (!ok) throw new ForbiddenError();
     }
     const doc = await this.model.create(data as any);
     return this.sanitize(doc as T);
@@ -42,7 +43,7 @@ export class CrudService<T extends Document> {
   async findAll(filter = {}, ctx: { req?: Request } = {}) {
     if (this.options?.allow) {
       const ok = await this.options.allow("list", { req: ctx.req, resource: null });
-      if (!ok) throw new Error("Forbidden");
+      if (!ok) throw new ForbiddenError();
     }
     const docs = await this.model.find(filter as any).exec();
     return (docs as T[]).map((d) => this.sanitize(d));
@@ -52,7 +53,7 @@ export class CrudService<T extends Document> {
     const doc = await this.model.findById(id as any).exec();
     if (this.options?.allow) {
       const ok = await this.options.allow("read", { req: ctx.req, resource: doc as any });
-      if (!ok) throw new Error("Forbidden");
+      if (!ok) throw new ForbiddenError();
     }
     return this.sanitize(doc as T | null);
   }
@@ -61,7 +62,7 @@ export class CrudService<T extends Document> {
     const existing = await this.model.findById(id as any).exec();
     if (this.options?.allow) {
       const ok = await this.options.allow("update", { req: ctx.req, resource: existing as any });
-      if (!ok) throw new Error("Forbidden");
+      if (!ok) throw new ForbiddenError();
     }
     const updated = await this.model.findByIdAndUpdate(id as any, data as any, { new: true }).exec();
     return this.sanitize(updated as T | null);
@@ -71,7 +72,7 @@ export class CrudService<T extends Document> {
     const existing = await this.model.findById(id as any).exec();
     if (this.options?.allow) {
       const ok = await this.options.allow("delete", { req: ctx.req, resource: existing as any });
-      if (!ok) throw new Error("Forbidden");
+      if (!ok) throw new ForbiddenError();
     }
     const deleted = await this.model.findByIdAndDelete(id as any).exec();
     return this.sanitize(deleted as T | null);

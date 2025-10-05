@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { CrudService } from "../services/crud.service.js";
+import { ForbiddenError } from "../errors/forbidden.error.js";
 
 type IdParam = { id: string };
 
@@ -11,7 +12,7 @@ export function createCrudRouter(service: CrudService<any>): Router {
       const result = await service.create(req.body, { req });
       res.status(201).json(result);
     } catch (err) {
-      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
+      if (err instanceof ForbiddenError) return res.status(403).json({ error: err.message });
       next(err);
     }
   });
@@ -21,7 +22,7 @@ export function createCrudRouter(service: CrudService<any>): Router {
       const items = await service.findAll({}, { req: _req });
       res.json(items);
     } catch (err) {
-      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
+      if (err instanceof ForbiddenError) return res.status(403).json({ error: err.message });
       next(err);
     }
   });
@@ -32,7 +33,7 @@ export function createCrudRouter(service: CrudService<any>): Router {
       if (!item) return res.status(404).json({ error: "Not found" });
       res.json(item);
     } catch (err) {
-      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
+      if (err instanceof ForbiddenError) return res.status(403).json({ error: err.message });
       next(err);
     }
   });
@@ -43,7 +44,7 @@ export function createCrudRouter(service: CrudService<any>): Router {
       if (!updated) return res.status(404).json({ error: "Not found" });
       res.json(updated);
     } catch (err) {
-      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
+      if (err instanceof ForbiddenError) return res.status(403).json({ error: err.message });
       next(err);
     }
   });
@@ -54,7 +55,7 @@ export function createCrudRouter(service: CrudService<any>): Router {
       if (!deleted) return res.status(404).json({ error: "Not found" });
       res.json(deleted);
     } catch (err) {
-      if ((err as any).message === "Forbidden") return res.status(403).json({ error: "Forbidden" });
+      if (err instanceof ForbiddenError) return res.status(403).json({ error: err.message });
       next(err);
     }
   });
