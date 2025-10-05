@@ -1,6 +1,6 @@
 import { Model, Document, Types } from "mongoose";
 import type { Request } from "express";
-import { ForbiddenError } from "../errors/forbidden.error.js";
+import { ForbiddenError } from "../errors/http.error.js";
 
 export type ID = string | Types.ObjectId;
 

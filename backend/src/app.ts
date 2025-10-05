@@ -4,6 +4,7 @@ import express, { type Express } from "express";
 import { setupSwagger } from "./config/swagger.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import usersRoutes from "./modules/users/users.routes.js";
+import { errorHandler } from "./middleware/error-handler.js";
 
 const app: Express = express();
 app.use(express.json());
@@ -16,5 +17,7 @@ app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 
 setupSwagger(app);
+
+app.use(errorHandler);
 
 export default app;

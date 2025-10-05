@@ -9,6 +9,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { CONFIG } from "../../config/env.js";
+import { ConflictError, UnauthorizedError } from "../../errors/http.error.js";
 
 const users: (User & { passwordHash: string })[] = [];
 
@@ -35,7 +36,7 @@ function issueTokens(user: User): AuthTokens {
 export async function register(raw: unknown) {
   const parsed = RegisterRequestSchema.parse(raw);
   if (users.find((u) => u.email === parsed.email)) {
-    throw new Error("Email already registered");
+    throw new ConflictError("Email already registered");
   }
   const id = randomUUID();
   const passwordHash = await bcrypt.hash(parsed.password, 10);
@@ -59,9 +60,9 @@ export async function register(raw: unknown) {
 export async function login(raw: unknown) {
   const parsed = LoginRequestSchema.parse(raw);
   const user = users.find((u) => u.email === parsed.email);
-  if (!user) throw new Error("Invalid credentials");
+  if (!user) throw new UnauthorizedError("Invalid credentials");
   const ok = await bcrypt.compare(parsed.password, user.passwordHash);
-  if (!ok) throw new Error("Invalid credentials");
+  if (!ok) throw new UnauthorizedError("Invalid credentials");
   return {
     user: toPublic(user),
     tokens: issueTokens(user),
