@@ -11,6 +11,10 @@ const app: Express = express();
 app.use(express.json());
 app.use(requestLogger);
 
+/**
+ * Root health/info endpoint used by dev and health checks.
+ * Returns a friendly greeting and the shared package version.
+ */
 app.get("/", (_req, res) => {
   res.json({ message: greet("World"), sharedVersion: VERSION });
 });

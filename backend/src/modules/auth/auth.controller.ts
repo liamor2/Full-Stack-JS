@@ -4,6 +4,15 @@ import { BadRequestError, HttpError } from "../../errors/http.error.js";
 
 import { register, login } from "./auth.service.js";
 
+/**
+ * HTTP handler to register a new user.
+ *
+ * Delegates to the service layer and maps any unexpected errors to a
+ * BadRequestError so the centralized error handler will return a 400.
+ *
+ * @param req - Express Request containing the registration payload in req.body
+ * @param res - Express Response used to respond with 201 and created entity
+ */
 export async function registerHandler(req: Request, res: Response) {
   try {
     const result = await register(req.body);
@@ -15,6 +24,15 @@ export async function registerHandler(req: Request, res: Response) {
   }
 }
 
+/**
+ * HTTP handler to authenticate a user and return tokens.
+ *
+ * Delegates to the auth service and converts unexpected errors into a
+ * BadRequestError for consistent API responses.
+ *
+ * @param req - Express Request containing login credentials in req.body
+ * @param res - Express Response which receives the authenticated user and tokens
+ */
 export async function loginHandler(req: Request, res: Response) {
   try {
     const result = await login(req.body);
@@ -26,6 +44,14 @@ export async function loginHandler(req: Request, res: Response) {
   }
 }
 
+/**
+ * Return the currently authenticated user attached to req.user by the
+ * `requireAuth` middleware. If no user is present the response will contain
+ * `user: undefined`.
+ *
+ * @param req - Express Request with optional user attached
+ * @param res - Express Response used to return the user
+ */
 export function meHandler(req: Request, res: Response) {
   const user = (req as Request & { user?: Record<string, unknown> }).user;
   res.json({ user });

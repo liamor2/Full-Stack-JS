@@ -5,6 +5,10 @@ import CrudService from "../../services/crud.service.js";
 
 type ReqWithUser = Request & { user?: { id?: string; role?: string } };
 
+/**
+ * UsersService extends the generic CrudService to provide user-specific
+ * configuration like publicFields and access control rules.
+ */
 class UsersService extends CrudService<IUser> {
   constructor() {
     super(User, {
@@ -20,6 +24,15 @@ class UsersService extends CrudService<IUser> {
         "createdBy",
         "updatedBy",
       ] as Array<keyof IUser>,
+      /**
+       * Access control callback used by the CrudService.
+       *
+       * Rules:
+       * - anonymous users may only create (register)
+       * - admins have full access
+       * - listing is disallowed for non-admins
+       * - reading/updating/deleting is allowed only for the same user
+       */
       allow: async (action, { req, resource }) => {
         const user = (req as ReqWithUser | undefined)?.user;
         if (!user) {

@@ -3,6 +3,12 @@ import type { Request, Response, NextFunction } from "express";
 import { HttpError } from "../errors/http.error.js";
 import { rootLogger } from "../utils/logger.js";
 
+/**
+ * Central Express error handler.
+ *
+ * Maps known HttpError instances to their status and body. Other errors are
+ * logged and returned as a generic 500 response.
+ */
 export function errorHandler(
   err: unknown,
   req: Request,

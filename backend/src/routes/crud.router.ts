@@ -6,6 +6,20 @@ import { CrudService } from "../services/crud.service.js";
 
 type IdParam = { id: string };
 
+/**
+ * Create an Express Router that exposes a standard set of CRUD endpoints
+ * for the provided CrudService.
+ *
+ * Endpoints:
+ * - POST   /       -> create
+ * - GET    /       -> list
+ * - GET    /:id    -> read
+ * - PUT    /:id    -> update
+ * - DELETE /:id    -> delete
+ *
+ * The service instance provided will be used directly; permission checks
+ * and validation are performed by the service.
+ */
 export function createCrudRouter<T extends Document>(service: CrudService<T>): Router {
   const router = Router();
 

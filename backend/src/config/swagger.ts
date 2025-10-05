@@ -31,6 +31,14 @@ const options: swaggerJSDoc.Options = {
 
 const swaggerSpec = swaggerJSDoc(options);
 
+/**
+ * Mount Swagger UI and the raw OpenAPI spec on the provided router.
+ *
+ * - GET /docs     -> interactive Swagger UI
+ * - GET /docs.json -> raw OpenAPI JSON
+ *
+ * @param router - an Express Router or app to mount the documentation on
+ */
 export function setupSwagger(router: Router) {
   router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   router.get("/docs.json", (_req, res) => {

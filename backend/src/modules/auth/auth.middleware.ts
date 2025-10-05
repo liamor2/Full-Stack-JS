@@ -4,6 +4,16 @@ import { UnauthorizedError, BadRequestError } from "../../errors/http.error.js";
 
 import { verifyJwt, getUserById } from "./auth.service.js";
 
+/**
+ * Express middleware that requires a valid Bearer JWT in Authorization header.
+ *
+ * If the token is valid, attaches the user record to req.user and calls next().
+ * On failure an HttpError is thrown (BadRequestError/UnauthorizedError).
+ *
+ * @param req - Express Request
+ * @param res - Express Response
+ * @param next - Express NextFunction
+ */
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer "))

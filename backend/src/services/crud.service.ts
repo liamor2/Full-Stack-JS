@@ -16,6 +16,17 @@ export type CrudOptions<T> = {
   ) => boolean | Promise<boolean>;
 };
 
+/**
+ * Generic CRUD service wrapper around a Mongoose Model.
+ *
+ * This class centralizes common CRUD operations (create, list, read, update,
+ * delete) for a given Mongoose model. It supports:
+ * - optional permission checks via the `allow` callback in CrudOptions
+ * - optional Zod-based payload validation via `createSchema`/`updateSchema`
+ * - sanitization of output fields using `publicFields`
+ *
+ * T should be a Mongoose Document type representing the model's document.
+ */
 export class CrudService<T extends Document> {
   protected options: CrudOptions<T> | undefined;
 
@@ -28,6 +39,16 @@ export class CrudService<T extends Document> {
 
   // `check` helper removed; permission checks are done inline per method using the provided `allow` option.
 
+  /**
+   * Sanitize a document using the configured `publicFields`.
+   *
+   * If `publicFields` is not configured the original document (or null) is
+   * returned. When `publicFields` is provided the returned value is a plain
+   * object containing only those keys.
+   *
+   * @param doc - Mongoose document or null
+   * @returns null | T | Record<string, unknown>
+   */
   protected sanitize(doc: T | null) {
     if (!doc) return null;
     if (!this.options?.publicFields) return doc;
@@ -40,6 +61,17 @@ export class CrudService<T extends Document> {
     return out;
   }
 
+  /**
+   * Create a new document.
+   *
+   * This method optionally checks permission via `allow('create')` and
+   * validates the payload with `createSchema` if present. On validation
+   * failure a BadRequestError is thrown. Returns the sanitized created
+   * document.
+   *
+   * @param data - Partial data used to create the document
+   * @param ctx  - Optional context (e.g. the Express Request)
+   */
   async create(data: Partial<T>, ctx: { req?: Request } = {}) {
     if (this.options?.allow) {
       const ok = await this.options.allow("create", { req: ctx.req, resource: null });
@@ -58,6 +90,15 @@ export class CrudService<T extends Document> {
     return this.sanitize(doc as T);
   }
 
+  /**
+   * Find documents matching a filter.
+   *
+   * Permission is checked via `allow('list')` if configured. Returns an
+   * array of sanitized results.
+   *
+   * @param filter - optional Mongo filter object
+   * @param ctx    - optional context containing the Request
+   */
   async findAll(filter = {}, ctx: { req?: Request } = {}) {
     if (this.options?.allow) {
       const ok = await this.options.allow("list", { req: ctx.req, resource: null });
@@ -67,6 +108,14 @@ export class CrudService<T extends Document> {
     return (docs as T[]).map((d) => this.sanitize(d));
   }
 
+  /**
+   * Find a single document by id.
+   *
+   * Permission is checked via `allow('read')` if configured.
+   *
+   * @param id  - document id (string or ObjectId)
+   * @param ctx - optional context containing the Request
+   */
   async findById(id: ID, ctx: { req?: Request } = {}) {
     const doc = await this.model.findById(id as unknown as Types.ObjectId | string).exec();
     if (this.options?.allow) {
@@ -76,6 +125,16 @@ export class CrudService<T extends Document> {
     return this.sanitize(doc as T | null);
   }
 
+  /**
+   * Update a document by id.
+   *
+   * Permission is checked via `allow('update')` if configured and payload is
+   * validated via `updateSchema` if provided.
+   *
+   * @param id   - document id
+   * @param data - partial update payload
+   * @param ctx  - optional Request context
+   */
   async update(id: ID, data: Partial<T>, ctx: { req?: Request } = {}) {
     const existing = await this.model.findById(id as unknown as Types.ObjectId | string).exec();
     if (this.options?.allow) {
@@ -96,6 +155,14 @@ export class CrudService<T extends Document> {
     return this.sanitize(updated as T | null);
   }
 
+  /**
+   * Delete a document by id.
+   *
+   * Permission is checked via `allow('delete')` if configured.
+   *
+   * @param id  - document id
+   * @param ctx - optional Request context
+   */
   async remove(id: ID, ctx: { req?: Request } = {}) {
     const existing = await this.model.findById(id as unknown as Types.ObjectId | string).exec();
     if (this.options?.allow) {

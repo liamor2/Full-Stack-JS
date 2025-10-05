@@ -5,6 +5,16 @@ export const rootLogger = pino({ level: process.env.LOG_LEVEL || "info", transpo
 
 export type RequestLogger = Logger;
 
+/**
+ * Create a request-scoped child logger.
+ *
+ * This function creates a pino child logger that includes a small set of
+ * contextual bindings (requestId, method, url). Use the returned logger for
+ * structured logging inside request handlers and middleware.
+ *
+ * @param context - Partial request metadata to bind to the child logger.
+ * @returns A pino Logger instance with the provided bindings.
+ */
 export function createRequestLogger(context: { requestId?: string; method?: string; url?: string }): RequestLogger {
   const meta: Record<string, string> = {};
   if (context.requestId) meta.requestId = context.requestId;
