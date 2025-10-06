@@ -4,7 +4,8 @@
     "jsx": "react-jsx",
     "composite": true,
     "rootDir": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "lib": ["ES2022", "DOM"]
   },
   "references": [{ "path": "../packages/shared" }],
   "include": ["src", "vite.config.ts"],
