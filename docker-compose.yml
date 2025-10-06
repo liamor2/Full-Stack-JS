@@ -74,6 +74,7 @@ services:
       - ./frontend:/repo/frontend:cached
       - ./packages/shared:/repo/packages/shared:cached
       - node_modules_frontend:/repo/frontend/node_modules
+      - node_modules_shared:/repo/packages/shared/node_modules
     depends_on:
       - backend
     restart: unless-stopped
