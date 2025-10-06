@@ -1,25 +1,15 @@
 import type { LoginRequest } from "@full-stack-js/shared";
+import { Alert } from "@mui/material";
+import { useState } from "react";
 import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Link,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { type ChangeEvent, FormEvent, useState } from "react";
-import {
-  Link as RouterLink,
   useNavigate,
   Navigate,
   useLocation,
   type Location,
 } from "react-router-dom";
 
+import AuthShell from "../components/AuthShell.js";
+import LoginForm from "../components/LoginForm.js";
 import useAuth from "../hooks/useAuth.js";
 
 const initialState: LoginRequest = {
@@ -42,13 +32,11 @@ const LoginPage = () => {
     return <Navigate to={from} replace />;
   }
 
-  const handleChange =
-    (field: keyof LoginRequest) => (event: ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({ ...prev, [field]: event.target.value }));
-    };
+  const handleChange = (field: keyof LoginRequest, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
     setError(null);
     try {
       await login(form);
@@ -60,66 +48,16 @@ const LoginPage = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 6 }}>
-      <Paper elevation={4} sx={{ p: { xs: 3, sm: 5 } }}>
-        <Stack spacing={3} component="form" onSubmit={handleSubmit}>
-          <Stack spacing={1}>
-            <Typography variant="h4" fontWeight={700} textAlign="center">
-              Welcome back
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              textAlign="center"
-            >
-              Login to manage your contacts and shared network.
-            </Typography>
-          </Stack>
+    <AuthShell error={error} altText="Create an account" altTo="/register">
+      {error ? <Alert severity="error">{error}</Alert> : null}
 
-          {error ? <Alert severity="error">{error}</Alert> : null}
-
-          <Stack spacing={2}>
-            <TextField
-              label="Email"
-              type="email"
-              value={form.email}
-              onChange={handleChange("email")}
-              required
-              autoComplete="email"
-            />
-            <TextField
-              label="Password"
-              type="password"
-              value={form.password}
-              onChange={handleChange("password")}
-              required
-              autoComplete="current-password"
-            />
-          </Stack>
-
-          <Button
-            type="submit"
-            variant="contained"
-            size="large"
-            disabled={loading}
-            startIcon={
-              loading ? (
-                <CircularProgress color="inherit" size={20} />
-              ) : undefined
-            }
-            sx={{ mt: 1 }}
-          >
-            Log in
-          </Button>
-
-          <Box textAlign="center">
-            <Link component={RouterLink} to="/" underline="hover">
-              Back to landing
-            </Link>
-          </Box>
-        </Stack>
-      </Paper>
-    </Container>
+      <LoginForm
+        form={form}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        loading={loading}
+      />
+    </AuthShell>
   );
 };
 

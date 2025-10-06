@@ -1,19 +1,20 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute.js";
+import DashboardPage from "./pages/DashboardPage.js";
 import LandingPage from "./pages/LandingPage.js";
 import LoginPage from "./pages/LoginPage.js";
-import DashboardPage from "./pages/DashboardPage.js";
+import RegisterPage from "./pages/RegisterPage.js";
 
-const AppRoutes = () => (
-  <Routes>
-    <Route path="/" element={<LandingPage />} />
-    <Route path="/login" element={<LoginPage />} />
-    <Route element={<ProtectedRoute />}>
-      <Route path="/dashboard" element={<DashboardPage />} />
-    </Route>
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
-);
+const routes = [
+  { path: "/", element: <LandingPage /> },
+  { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <RegisterPage /> },
+  {
+    element: <ProtectedRoute />,
+    children: [{ path: "/dashboard", element: <DashboardPage /> }],
+  },
+  { path: "*", element: <Navigate to="/" replace /> },
+];
 
-export default AppRoutes;
+export default routes;
