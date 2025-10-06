@@ -7,7 +7,10 @@ import {
 } from "express";
 import type { Document } from "mongoose";
 
-import { registerCrudResource, registerZodSchema } from "../config/openapi-registry.js";
+import {
+  registerCrudResource,
+  registerZodSchema,
+} from "../config/openapi-registry.js";
 import { NotFoundError } from "../errors/http.error.js";
 import { validateBody } from "../middleware/validate-body.js";
 import { CrudService } from "../services/crud.service.js";
@@ -30,19 +33,25 @@ type IdParam = { id: string };
  */
 export function createCrudRouter<T extends Document>(
   service: CrudService<T>,
-  options?: { basePath?: string; tag?: string; schemas?: Record<string, unknown> },
+  options?: {
+    basePath?: string;
+    tag?: string;
+    schemas?: Record<string, unknown>;
+  },
 ): Router {
   const router = Router();
   if (options?.basePath) {
-  const createSchema = service.getOptions()?.createSchema;
-  const updateSchema = service.getOptions()?.updateSchema;
-  const responseSchema = service.getOptions()?.responseSchema;
-  const partialSchema = service.getOptions()?.partialUpdateSchema;
+    const createSchema = service.getOptions()?.createSchema;
+    const updateSchema = service.getOptions()?.updateSchema;
+    const responseSchema = service.getOptions()?.responseSchema;
+    const partialSchema = service.getOptions()?.partialUpdateSchema;
 
     const schemas: Record<string, unknown> = { ...(options.schemas || {}) };
-  const requestName = options.tag ? `${options.tag}Request` : "Request";
-  const responseName = options.tag ? `${options.tag}Response` : "Response";
-  const patchRequestName = options.tag ? `${options.tag}PatchRequest` : "PatchRequest";
+    const requestName = options.tag ? `${options.tag}Request` : "Request";
+    const responseName = options.tag ? `${options.tag}Response` : "Response";
+    const patchRequestName = options.tag
+      ? `${options.tag}PatchRequest`
+      : "PatchRequest";
 
     if (createSchema) {
       registerZodSchema(requestName, createSchema);
@@ -55,7 +64,9 @@ export function createCrudRouter<T extends Document>(
 
     if (partialSchema) {
       registerZodSchema(patchRequestName, partialSchema);
-      schemas[patchRequestName] = { $ref: `#/components/schemas/${patchRequestName}` };
+      schemas[patchRequestName] = {
+        $ref: `#/components/schemas/${patchRequestName}`,
+      };
     }
 
     if (responseSchema) {

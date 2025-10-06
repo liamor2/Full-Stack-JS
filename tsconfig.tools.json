@@ -5,9 +5,5 @@
     "noEmit": true,
     "types": ["node", "jest"]
   },
-  "include": [
-    "jest.config.ts",
-    "jest.setup.ts",
-    "frontend/vite.config.ts"
-  ]
+  "include": ["jest.config.ts", "jest.setup.ts", "frontend/vite.config.ts"]
 }
