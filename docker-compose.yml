@@ -39,6 +39,7 @@ services:
       PORT: ${PORT:-3000}
       JWT_SECRET: ${JWT_SECRET:-change-me-in-shell}
       MONGO_URI: ${MONGO_URI:-mongodb://root:example@mongodb:27017/app?authSource=admin}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
     ports:
       - "3000:3000"
     volumes:
