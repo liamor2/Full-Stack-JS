@@ -1,7 +1,11 @@
-import type { RequestHandler } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { UserModel } from "../models/user.js";
 
-export const requireAdmin: RequestHandler = async (req, res, next) => {
+export const requireAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const anyReq = req as any;
   const userId = anyReq.userId as string | undefined;
   if (!userId) {
