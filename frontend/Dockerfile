@@ -22,5 +22,6 @@ COPY packages/shared ./packages/shared
 COPY frontend ./frontend
 
 WORKDIR /repo/frontend
+RUN pnpm -w -F @full-stack-js/shared build
 EXPOSE 5173
 CMD ["pnpm", "dev", "--host", "0.0.0.0"]
