@@ -1,7 +1,11 @@
 import express, { Express } from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import miscRoutes from "./routes/misc.js";
 import contactsRoutes from "./routes/contacts.js";
+
+dotenv.config();
 
 const app: Express = express();
 const port = Number(process.env.PORT || 3000);
@@ -12,10 +16,27 @@ app.use("/auth", authRoutes);
 app.use("/", miscRoutes);
 app.use("/contacts", contactsRoutes);
 
-if (process.env.NODE_ENV !== "test") {
-  app.listen(port, () => {
-    console.log(`Server listening on http://0.0.0.0:${port}`);
-  });
+const mongoUri =
+  process.env.MONGO_URI || "mongodb://localhost:27017/app?authSource=admin";
+
+async function startServer(): Promise<void> {
+  try {
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 5000,
+    });
+    console.log("Connected to MongoDB");
+
+    if (process.env.NODE_ENV !== "test") {
+      app.listen(port, () => {
+        console.log(`Server listening on http://0.0.0.0:${port}`);
+      });
+    }
+  } catch (err) {
+    console.error("Failed to connect to MongoDB:", err);
+    process.exit(1);
+  }
 }
+
+void startServer();
 
 export default app;
