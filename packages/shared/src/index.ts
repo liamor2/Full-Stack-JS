@@ -4,7 +4,7 @@ export function greet(name: string): string {
 
 export const VERSION = "0.0.1";
 
-export type { User, AuthTokens, JwtPayload } from "./types/auth.js";
+export type { AuthTokens, JwtPayload } from "./types/auth.js";
 export type {
   LoginResponse,
   RegisterResponse,
@@ -14,3 +14,5 @@ export { ContactZ } from "./validators/contact.schema.js";
 export type { Contact } from "./validators/contact.schema.js";
 export { BaseEntityZ } from "./validators/baseEntity.schema.js";
 export type { BaseEntity } from "./validators/baseEntity.schema.js";
+export { UserZ } from "./validators/user.schema.js";
+export type { User } from "./validators/user.schema.js";
