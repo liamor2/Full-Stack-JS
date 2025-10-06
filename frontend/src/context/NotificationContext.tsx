@@ -1,3 +1,4 @@
+import { Snackbar, Alert, type AlertColor } from "@mui/material";
 import React, {
   createContext,
   useCallback,
@@ -5,7 +6,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Snackbar, Alert, type AlertColor } from "@mui/material";
 
 type NotifyFn = (message: string, severity?: AlertColor, ms?: number) => void;
 
