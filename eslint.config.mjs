@@ -1,5 +1,6 @@
 import js from "@eslint/js";
-import tseslint from "typescript-eslint";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import jsxA11y from "eslint-plugin-jsx-a11y";
@@ -11,7 +12,6 @@ const isCI = process.env.CI === "true";
 
 export default [
   js.configs.recommended,
-  ...tseslint.configs.recommended,
   {
     plugins: {
       react,
@@ -20,15 +20,29 @@ export default [
       import: importPlugin,
       "unused-imports": unusedImports,
       security,
+      "@typescript-eslint": tseslint,
     },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
-      parser: tseslint.parser,
+      parser: tsParser,
       parserOptions: {
-        projectService: true,
         tsconfigRootDir: process.cwd(),
+        project: [
+          "./tsconfig.base.json",
+          "./tsconfig.tools.json",
+          "./backend/tsconfig.json",
+          "./frontend/tsconfig.json",
+          "./packages/shared/tsconfig.json",
+        ],
         warnOnUnsupportedTypeScriptVersion: false,
+      },
+      globals: {
+        process: "readonly",
+        globalThis: "readonly",
+        window: "readonly",
+        document: "readonly",
+        crypto: "readonly",
       },
     },
     settings: {
@@ -49,6 +63,12 @@ export default [
       "no-console": isCI ? "warn" : "off",
       "no-debugger": "warn",
       eqeqeq: ["error", "always"],
+      // prefer TypeScript-aware unused-vars rule
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", ignoreRestSiblings: true }
+      ],
     },
   },
   {
