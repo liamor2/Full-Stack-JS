@@ -33,10 +33,6 @@ export function createCrudRouter<T extends Document>(
   options?: { basePath?: string; tag?: string; schemas?: Record<string, unknown> },
 ): Router {
   const router = Router();
-
-  // If a basePath is provided we register Zod schemas (if present on the
-  // service) and then register the CRUD resource so the OpenAPI registry
-  // can reference those component schemas in the generated paths.
   if (options?.basePath) {
   const createSchema = service.getOptions()?.createSchema;
   const updateSchema = service.getOptions()?.updateSchema;
@@ -55,7 +51,6 @@ export function createCrudRouter<T extends Document>(
       schemas[requestName] = { $ref: `#/components/schemas/${requestName}` };
     }
 
-    // Register response schema if provided, otherwise use placeholder
     if (responseSchema) {
       registerZodSchema(responseName, responseSchema);
       schemas[responseName] = { $ref: `#/components/schemas/${responseName}` };

@@ -18,8 +18,6 @@ export function registerPath(path: string, item: OpenApiPathItem) {
 }
 
 export function registerSchema(name: string, schema: Record<string, unknown>) {
-  // Only register if not already present to avoid clobbering Zod-derived
-  // schemas previously registered via registerZodSchema.
   if (!components.schemas[name]) {
     components.schemas[name] = schema;
   }
