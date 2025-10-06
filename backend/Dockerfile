@@ -22,6 +22,6 @@ COPY packages/shared ./packages/shared
 COPY backend ./backend
 
 WORKDIR /repo/backend
-RUN pnpm -w -F @full-stack-js/shared build
+RUN pnpm --filter @full-stack-js/backend run build
 EXPOSE 3000
 CMD ["pnpm", "dev"]

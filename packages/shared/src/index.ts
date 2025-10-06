@@ -4,5 +4,9 @@ export function greet(name: string): string {
 
 export const VERSION = "0.0.1";
 
-export * from "./types/auth.js";
-export * from "./api/contracts.js";
+export type { User, AuthTokens, JwtPayload } from "./types/auth.js";
+export type {
+  LoginResponse,
+  RegisterResponse,
+  MeResponse,
+} from "./api/contracts.js";

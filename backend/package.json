@@ -6,8 +6,8 @@
   "main": "dist/server.js",
   "types": "dist/server.d.ts",
   "scripts": {
-    "dev": "nodemon --config nodemon.json",
-    "build": "tsc -p tsconfig.json",
+    "dev": "nodemon --config nodemon.json src/server.ts",
+    "build": "tsc -b --force",
     "start": "node dist/server.js"
   },
   "dependencies": {
