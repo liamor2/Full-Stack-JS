@@ -47,10 +47,27 @@ export function registerCrudResource(
       tags: [tag],
       summary: `Create ${tag}`,
       ...(options.requestSchemaName
-        ? { requestBody: { content: { "application/json": { schema: makeRef(options.requestSchemaName) } } } }
+        ? {
+            requestBody: {
+              content: {
+                "application/json": {
+                  schema: makeRef(options.requestSchemaName),
+                },
+              },
+            },
+          }
         : {}),
       responses: options.responseSchemaName
-        ? { "201": { description: "Created", content: { "application/json": { schema: makeRef(options.responseSchemaName) } } } }
+        ? {
+            "201": {
+              description: "Created",
+              content: {
+                "application/json": {
+                  schema: makeRef(options.responseSchemaName),
+                },
+              },
+            },
+          }
         : { "201": { description: "Created" } },
     },
   });
@@ -59,36 +76,92 @@ export function registerCrudResource(
     get: {
       tags: [tag],
       summary: `Get ${tag} by id`,
-      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-      responses: { "200": { description: "OK" }, "404": { description: "Not Found" } },
+      parameters: [
+        { name: "id", in: "path", required: true, schema: { type: "string" } },
+      ],
+      responses: {
+        "200": { description: "OK" },
+        "404": { description: "Not Found" },
+      },
     },
     put: {
       tags: [tag],
       summary: `Update ${tag} by id`,
-      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+      parameters: [
+        { name: "id", in: "path", required: true, schema: { type: "string" } },
+      ],
       ...(options.requestSchemaName
-        ? { requestBody: { content: { "application/json": { schema: makeRef(options.requestSchemaName) } } } }
+        ? {
+            requestBody: {
+              content: {
+                "application/json": {
+                  schema: makeRef(options.requestSchemaName),
+                },
+              },
+            },
+          }
         : {}),
       responses: options.responseSchemaName
-        ? { "200": { description: "Updated", content: { "application/json": { schema: makeRef(options.responseSchemaName) } } }, "404": { description: "Not Found" } }
-        : { "200": { description: "Updated" }, "404": { description: "Not Found" } },
+        ? {
+            "200": {
+              description: "Updated",
+              content: {
+                "application/json": {
+                  schema: makeRef(options.responseSchemaName),
+                },
+              },
+            },
+            "404": { description: "Not Found" },
+          }
+        : {
+            "200": { description: "Updated" },
+            "404": { description: "Not Found" },
+          },
     },
     patch: {
       tags: [tag],
       summary: `Patch ${tag} by id`,
-      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+      parameters: [
+        { name: "id", in: "path", required: true, schema: { type: "string" } },
+      ],
       ...(options.patchRequestSchemaName
-        ? { requestBody: { content: { "application/json": { schema: makeRef(options.patchRequestSchemaName) } } } }
+        ? {
+            requestBody: {
+              content: {
+                "application/json": {
+                  schema: makeRef(options.patchRequestSchemaName),
+                },
+              },
+            },
+          }
         : {}),
       responses: options.responseSchemaName
-        ? { "200": { description: "Patched", content: { "application/json": { schema: makeRef(options.responseSchemaName) } } }, "404": { description: "Not Found" } }
-        : { "200": { description: "Patched" }, "404": { description: "Not Found" } },
+        ? {
+            "200": {
+              description: "Patched",
+              content: {
+                "application/json": {
+                  schema: makeRef(options.responseSchemaName),
+                },
+              },
+            },
+            "404": { description: "Not Found" },
+          }
+        : {
+            "200": { description: "Patched" },
+            "404": { description: "Not Found" },
+          },
     },
     delete: {
       tags: [tag],
       summary: `Delete ${tag} by id`,
-      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-      responses: { "200": { description: "Deleted" }, "404": { description: "Not Found" } },
+      parameters: [
+        { name: "id", in: "path", required: true, schema: { type: "string" } },
+      ],
+      responses: {
+        "200": { description: "Deleted" },
+        "404": { description: "Not Found" },
+      },
     },
   });
 
@@ -120,7 +193,8 @@ function zodToOpenApi(z: any): Record<string, unknown> {
 
   switch (t) {
     case "ZodString": {
-      if (Array.isArray(z._def.values)) return { type: "string", enum: z._def.values };
+      if (Array.isArray(z._def.values))
+        return { type: "string", enum: z._def.values };
       return { type: "string" };
     }
     case "ZodNumber":
@@ -130,11 +204,14 @@ function zodToOpenApi(z: any): Record<string, unknown> {
     case "ZodEnum":
       return { type: "string", enum: (z._def && z._def.values) || [] };
     case "ZodLiteral":
-      return { enum: [(z._def && z._def.value)] };
+      return { enum: [z._def && z._def.value] };
     case "ZodArray":
       return { type: "array", items: zodToOpenApi(z._def.type) };
     case "ZodObject": {
-      const shape = typeof z._def.shape === "function" ? z._def.shape() : z._def.shape || {};
+      const shape =
+        typeof z._def.shape === "function"
+          ? z._def.shape()
+          : z._def.shape || {};
       const properties: Record<string, unknown> = {};
       const required: string[] = [];
       for (const [k, v] of Object.entries(shape)) {

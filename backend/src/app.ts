@@ -5,6 +5,7 @@ import { setupSwagger } from "./config/swagger.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import requestLogger from "./middleware/request-logger.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import contactsRoutes from "./modules/contacts/contacts.routes.js";
 import usersRoutes from "./modules/users/users.routes.js";
 
 const app: Express = express();
@@ -20,6 +21,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/contacts", contactsRoutes);
 app.use("/users", usersRoutes);
 
 setupSwagger(app);

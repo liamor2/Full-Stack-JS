@@ -51,7 +51,10 @@ export function setupSwagger(router: Router) {
       if (extras.components?.schemas) {
         swaggerSpec.components = {
           ...(swaggerSpec.components || {}),
-          schemas: { ...(swaggerSpec.components?.schemas || {}), ...extras.components.schemas },
+          schemas: {
+            ...(swaggerSpec.components?.schemas || {}),
+            ...extras.components.schemas,
+          },
         };
       }
     }
