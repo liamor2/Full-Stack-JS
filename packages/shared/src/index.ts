@@ -10,3 +10,7 @@ export type {
   RegisterResponse,
   MeResponse,
 } from "./api/contracts.js";
+export { ContactZ } from "./validators/contact.schema.js";
+export type { Contact } from "./validators/contact.schema.js";
+export { BaseEntityZ } from "./validators/baseEntity.schema.js";
+export type { BaseEntity } from "./validators/baseEntity.schema.js";
