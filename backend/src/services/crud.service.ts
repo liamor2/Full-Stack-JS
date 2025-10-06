@@ -10,6 +10,7 @@ export type CrudOptions<T> = {
   publicFields?: Array<keyof T>;
   createSchema?: z.ZodTypeAny;
   updateSchema?: z.ZodTypeAny;
+  responseSchema?: z.ZodTypeAny;
   allow?: (
     action: "list" | "read" | "create" | "update" | "delete",
     ctx: { req?: Request; resource?: Record<string, unknown> | null },

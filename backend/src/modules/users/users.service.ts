@@ -1,3 +1,5 @@
+import { UserCreateSchema, UserUpdateSchema, UserResponseSchema } from "@full-stack-js/shared";
+
 import { User, IUser } from "../../models/users.model.js";
 import CrudService from "../../services/crud.service.js";
 import type { RequestWithUser } from "../../types/requests.js";
@@ -24,6 +26,9 @@ class UsersService extends CrudService<IUser> {
         "createdBy",
         "updatedBy",
       ] as Array<keyof IUser>,
+  createSchema: UserCreateSchema,
+  updateSchema: UserUpdateSchema,
+  responseSchema: UserResponseSchema,
       allow: async (action, { req, resource }) => {
         const user = (req as RequestWithUser | undefined)?.user;
         if (!user) return action === "create";

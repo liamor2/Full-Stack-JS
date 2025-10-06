@@ -7,6 +7,7 @@ import {
 } from "express";
 import type { Document } from "mongoose";
 
+import { registerCrudResource, registerZodSchema } from "../config/openapi-registry.js";
 import { NotFoundError } from "../errors/http.error.js";
 import { validateBody } from "../middleware/validate-body.js";
 import { CrudService } from "../services/crud.service.js";
@@ -29,8 +30,46 @@ type IdParam = { id: string };
  */
 export function createCrudRouter<T extends Document>(
   service: CrudService<T>,
+  options?: { basePath?: string; tag?: string; schemas?: Record<string, unknown> },
 ): Router {
   const router = Router();
+
+  // If a basePath is provided we register Zod schemas (if present on the
+  // service) and then register the CRUD resource so the OpenAPI registry
+  // can reference those component schemas in the generated paths.
+  if (options?.basePath) {
+  const createSchema = service.getOptions()?.createSchema;
+  const updateSchema = service.getOptions()?.updateSchema;
+  const responseSchema = service.getOptions()?.responseSchema;
+
+    const schemas: Record<string, unknown> = { ...(options.schemas || {}) };
+    const requestName = options.tag ? `${options.tag}Request` : "Request";
+    const responseName = options.tag ? `${options.tag}Response` : "Response";
+
+    if (createSchema) {
+      registerZodSchema(requestName, createSchema);
+      schemas[requestName] = { $ref: `#/components/schemas/${requestName}` };
+    }
+    if (updateSchema) {
+      registerZodSchema(requestName, updateSchema);
+      schemas[requestName] = { $ref: `#/components/schemas/${requestName}` };
+    }
+
+    // Register response schema if provided, otherwise use placeholder
+    if (responseSchema) {
+      registerZodSchema(responseName, responseSchema);
+      schemas[responseName] = { $ref: `#/components/schemas/${responseName}` };
+    } else if (!schemas[responseName]) {
+      schemas[responseName] = { type: "object" };
+    }
+
+    registerCrudResource(options.basePath, {
+      tag: options.tag,
+      schemas,
+      requestSchemaName: requestName,
+      responseSchemaName: responseName,
+    } as any);
+  }
 
   const createSchema = service.getOptions()?.createSchema;
   const createHandlers = [] as Array<RequestHandler>;

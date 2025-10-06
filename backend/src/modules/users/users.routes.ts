@@ -19,6 +19,6 @@ router.get("/me", requireAuth, (req: RequestWithUser, res) => {
   res.json({ user });
 });
 
-router.use("/", createCrudRouter(usersService));
+router.use("/", createCrudRouter(usersService, { basePath: "/users", tag: "users" }));
 
 export default router;

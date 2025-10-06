@@ -4,6 +4,8 @@ import swaggerJSDoc from "swagger-jsdoc";
 // @ts-expect-error missing types for swagger-ui-express until @types installed (runtime ok)
 import swaggerUi from "swagger-ui-express";
 
+import * as openapiRegistry from "./openapi-registry.js";
+
 const swaggerDefinition = {
   openapi: "3.0.3",
   info: {
@@ -40,6 +42,23 @@ const swaggerSpec = swaggerJSDoc(options);
  * @param router - an Express Router or app to mount the documentation on
  */
 export function setupSwagger(router: Router) {
+  try {
+    const extras = openapiRegistry.getOpenApiExtras?.();
+    if (extras) {
+      if (extras.paths) {
+        swaggerSpec.paths = { ...(swaggerSpec.paths || {}), ...extras.paths };
+      }
+      if (extras.components?.schemas) {
+        swaggerSpec.components = {
+          ...(swaggerSpec.components || {}),
+          schemas: { ...(swaggerSpec.components?.schemas || {}), ...extras.components.schemas },
+        };
+      }
+    }
+  } catch {
+    // ignore
+  }
+
   router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   router.get("/docs.json", (_req, res) => {
     res.json(swaggerSpec);
