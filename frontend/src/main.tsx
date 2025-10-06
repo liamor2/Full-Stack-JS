@@ -1,13 +1,10 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 
-import ProtectedRoute from "./components/ProtectedRoute.js";
+import AppRoutes from "./AppRoutes.js";
 import { AuthProvider } from "./context/AuthContext.js";
-import DashboardPage from "./pages/DashboardPage.js";
-import LandingPage from "./pages/LandingPage.js";
-import LoginPage from "./pages/LoginPage.js";
 
 const theme = createTheme({
   palette: {
@@ -34,14 +31,7 @@ createRoot(document.getElementById("root")!).render(
       <CssBaseline />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <AppRoutes />
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
