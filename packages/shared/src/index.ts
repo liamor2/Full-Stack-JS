@@ -23,3 +23,4 @@ export {
   AUTH_REFRESH,
   AUTH_ME,
 } from "./api/paths.js";
+export { LoginZ, RegisterZ } from "./validators/auth.schema.js";

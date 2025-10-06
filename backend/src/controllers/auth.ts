@@ -105,10 +105,24 @@ export const refresh: RequestHandler = async (req, res, next) => {
   }
 };
 
-const exported = { register, login, me, refresh };
+const blacklistedRefresh = new Set<string>();
+
+export const logout: RequestHandler = (req, res) => {
+  const { refreshToken } = req.body ?? {};
+  if (refreshToken && typeof refreshToken === "string") {
+    blacklistedRefresh.add(refreshToken);
+  }
+  res.json({ ok: true });
+};
+
+export const isRefreshBlacklisted = (token: string) =>
+  blacklistedRefresh.has(token);
+
+const exported = { register, login, me, refresh, logout };
 export default exported as {
   register: RequestHandler;
   login: RequestHandler;
   me: RequestHandler;
   refresh: RequestHandler;
+  logout: RequestHandler;
 };
