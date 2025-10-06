@@ -6,6 +6,10 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    watch: {
+      usePolling: process.env.CHOKIDAR_USEPOLLING === "true",
+      interval: Number(process.env.CHOKIDAR_INTERVAL ?? 100),
+    },
     proxy: {
       "/api": {
         target: process.env.VITE_API_URL || "http://localhost:3000",

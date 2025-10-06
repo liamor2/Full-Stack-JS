@@ -40,6 +40,10 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-in-shell}
       MONGO_URI: ${MONGO_URI:-mongodb://root:example@mongodb:27017/app?authSource=admin}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "100"
+      WATCHPACK_POLLING: "true"
+      WATCHPACK_POLLING_INTERVAL: "100"
     ports:
       - "3000:3000"
     volumes:
@@ -66,10 +70,15 @@ services:
     environment:
       NODE_ENV: development
       VITE_API_URL: http://localhost:3000
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "100"
     ports:
       - "5173:5173"
     volumes:
-      - ./:/repo:cached
+      - ./frontend:/repo/frontend:cached
+      - ./packages/shared:/repo/packages/shared:cached
+      - node_modules_frontend:/repo/frontend/node_modules
+      - node_modules_root:/repo/node_modules
     depends_on:
       - backend
     restart: unless-stopped
@@ -79,6 +88,8 @@ volumes:
   mongo_data:
   node_modules_backend:
   node_modules_shared:
+  node_modules_frontend:
+  node_modules_root:
 
 networks:
   app-net:
