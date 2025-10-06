@@ -23,8 +23,19 @@ export function registerSchema(name: string, schema: Record<string, unknown>) {
   }
 }
 
-export function registerCrudResource(basePath: string, options: { tag?: string; schemas?: Record<string, unknown> } = {}) {
+export function registerCrudResource(
+  basePath: string,
+  options: {
+    tag?: string;
+    schemas?: Record<string, unknown>;
+    requestSchemaName?: string;
+    patchRequestSchemaName?: string;
+    responseSchemaName?: string;
+  } = {},
+) {
   const tag = options.tag || basePath.replace(/^\//, "");
+
+  const makeRef = (n: string) => ({ $ref: `#/components/schemas/${n}` });
 
   registerPath(basePath, {
     get: {
@@ -35,7 +46,12 @@ export function registerCrudResource(basePath: string, options: { tag?: string; 
     post: {
       tags: [tag],
       summary: `Create ${tag}`,
-      responses: { "201": { description: "Created" } },
+      ...(options.requestSchemaName
+        ? { requestBody: { content: { "application/json": { schema: makeRef(options.requestSchemaName) } } } }
+        : {}),
+      responses: options.responseSchemaName
+        ? { "201": { description: "Created", content: { "application/json": { schema: makeRef(options.responseSchemaName) } } } }
+        : { "201": { description: "Created" } },
     },
   });
 
@@ -50,7 +66,23 @@ export function registerCrudResource(basePath: string, options: { tag?: string; 
       tags: [tag],
       summary: `Update ${tag} by id`,
       parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-      responses: { "200": { description: "Updated" }, "404": { description: "Not Found" } },
+      ...(options.requestSchemaName
+        ? { requestBody: { content: { "application/json": { schema: makeRef(options.requestSchemaName) } } } }
+        : {}),
+      responses: options.responseSchemaName
+        ? { "200": { description: "Updated", content: { "application/json": { schema: makeRef(options.responseSchemaName) } } }, "404": { description: "Not Found" } }
+        : { "200": { description: "Updated" }, "404": { description: "Not Found" } },
+    },
+    patch: {
+      tags: [tag],
+      summary: `Patch ${tag} by id`,
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+      ...(options.patchRequestSchemaName
+        ? { requestBody: { content: { "application/json": { schema: makeRef(options.patchRequestSchemaName) } } } }
+        : {}),
+      responses: options.responseSchemaName
+        ? { "200": { description: "Patched", content: { "application/json": { schema: makeRef(options.responseSchemaName) } } }, "404": { description: "Not Found" } }
+        : { "200": { description: "Patched" }, "404": { description: "Not Found" } },
     },
     delete: {
       tags: [tag],

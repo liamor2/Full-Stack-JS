@@ -11,6 +11,7 @@ export type CrudOptions<T> = {
   createSchema?: z.ZodTypeAny;
   updateSchema?: z.ZodTypeAny;
   responseSchema?: z.ZodTypeAny;
+  partialUpdateSchema?: z.ZodTypeAny;
   allow?: (
     action: "list" | "read" | "create" | "update" | "delete",
     ctx: { req?: Request; resource?: Record<string, unknown> | null },

@@ -37,10 +37,12 @@ export function createCrudRouter<T extends Document>(
   const createSchema = service.getOptions()?.createSchema;
   const updateSchema = service.getOptions()?.updateSchema;
   const responseSchema = service.getOptions()?.responseSchema;
+  const partialSchema = service.getOptions()?.partialUpdateSchema;
 
     const schemas: Record<string, unknown> = { ...(options.schemas || {}) };
-    const requestName = options.tag ? `${options.tag}Request` : "Request";
-    const responseName = options.tag ? `${options.tag}Response` : "Response";
+  const requestName = options.tag ? `${options.tag}Request` : "Request";
+  const responseName = options.tag ? `${options.tag}Response` : "Response";
+  const patchRequestName = options.tag ? `${options.tag}PatchRequest` : "PatchRequest";
 
     if (createSchema) {
       registerZodSchema(requestName, createSchema);
@@ -49,6 +51,11 @@ export function createCrudRouter<T extends Document>(
     if (updateSchema) {
       registerZodSchema(requestName, updateSchema);
       schemas[requestName] = { $ref: `#/components/schemas/${requestName}` };
+    }
+
+    if (partialSchema) {
+      registerZodSchema(patchRequestName, partialSchema);
+      schemas[patchRequestName] = { $ref: `#/components/schemas/${patchRequestName}` };
     }
 
     if (responseSchema) {
@@ -62,8 +69,9 @@ export function createCrudRouter<T extends Document>(
       tag: options.tag,
       schemas,
       requestSchemaName: requestName,
+      patchRequestSchemaName: patchRequestName,
       responseSchemaName: responseName,
-    } as any);
+    });
   }
 
   const createSchema = service.getOptions()?.createSchema;
@@ -118,6 +126,21 @@ export function createCrudRouter<T extends Document>(
     },
   );
   router.put("/:id", ...updateHandlers);
+
+  const patchHandlers = [] as Array<RequestHandler<IdParam>>;
+  if (updateSchema) patchHandlers.push(validateBody(updateSchema));
+  patchHandlers.push(
+    async (req: Request<IdParam>, res: Response, next: NextFunction) => {
+      try {
+        const updated = await service.update(req.params.id, req.body, { req });
+        if (!updated) throw new NotFoundError();
+        res.json(updated);
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
+  router.patch("/:id", ...patchHandlers);
 
   router.delete(
     "/:id",
