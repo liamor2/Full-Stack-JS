@@ -16,3 +16,10 @@ export { BaseEntityZ } from "./validators/baseEntity.schema.js";
 export type { BaseEntity } from "./validators/baseEntity.schema.js";
 export { UserZ } from "./validators/user.schema.js";
 export type { User } from "./validators/user.schema.js";
+export {
+  AUTH_BASE,
+  AUTH_LOGIN,
+  AUTH_REGISTER,
+  AUTH_REFRESH,
+  AUTH_ME,
+} from "./api/paths.js";

@@ -1,19 +1,14 @@
-import express, { Express, Request, Response } from "express";
-import { greet } from "@full-stack-js/shared";
+import express, { Express } from "express";
+import authRoutes from "./routes/auth.js";
+import miscRoutes from "./routes/misc.js";
 
 const app: Express = express();
 const port = Number(process.env.PORT || 3000);
 
-app.get("/hello", (req: Request, res: Response) => {
-  const rawName = req.query.name;
-  const name = typeof rawName === "string" ? rawName : "world";
-  const message = greet(name);
-  res.json({ message });
-});
+app.use(express.json());
 
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+app.use("/auth", authRoutes);
+app.use("/", miscRoutes);
 
 if (process.env.NODE_ENV !== "test") {
   app.listen(port, () => {
