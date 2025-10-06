@@ -3,17 +3,34 @@ import argon2 from "argon2";
 import { UserZ } from "@full-stack-js/shared";
 import zodToMongoose from "../utils/zod-to-mongoose.js";
 
+export interface IUser {
+  email: string;
+  password: string;
+  role: "admin" | "user";
+  firstName?: string;
+  lastName?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IUserDocument extends mongoose.Document, IUser {
+  comparePassword(candidate: string): Promise<boolean>;
+}
+
 const def = zodToMongoose(UserZ) as Record<string, any>;
 
 delete def.createdAt;
 delete def.updatedAt;
 
-const userSchema = new mongoose.Schema(def, { timestamps: true });
+const userSchema = new mongoose.Schema<IUserDocument>(def, {
+  timestamps: true,
+});
 
 userSchema.index({ email: 1 }, { unique: true });
 
-userSchema.pre("save", async function (this: any) {
-  if (!this.isModified?.("password")) return;
+userSchema.pre("save", async function (this: IUserDocument) {
+  const docAny = this as any;
+  if (!docAny.isModified?.("password")) return;
   if (this.password) {
     this.password = await argon2.hash(this.password);
   }
@@ -32,10 +49,13 @@ userSchema.pre("findOneAndUpdate", async function (this: any) {
   this.setUpdate(update);
 });
 
-userSchema.methods.comparePassword = async function (candidate: string) {
+userSchema.methods.comparePassword = async function (
+  this: IUserDocument,
+  candidate: string,
+): Promise<boolean> {
   return argon2.verify(this.password, candidate);
 };
 
-export const UserModel = mongoose.model("User", userSchema);
+export const UserModel = mongoose.model<IUserDocument>("User", userSchema);
 
 export default UserModel;
