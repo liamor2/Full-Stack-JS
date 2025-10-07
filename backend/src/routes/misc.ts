@@ -6,6 +6,8 @@ const router: Router = Router();
 /**
  * @openapi
  * /hello:
+ *   tags:
+ *     - Misc
  *   get:
  *     summary: Greet someone
  *     parameters:
@@ -36,6 +38,8 @@ router.get("/hello", (req, res) => {
 /**
  * @openapi
  * /health:
+ *   tags:
+ *     - Misc
  *   get:
  *     summary: Health check
  *     responses:

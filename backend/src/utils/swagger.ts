@@ -1,5 +1,5 @@
-import swaggerJsdoc from "swagger-jsdoc";
 import { Express } from "express";
+import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
 export function createSwagger(app: Express, port: number) {
@@ -11,6 +11,11 @@ export function createSwagger(app: Express, port: number) {
         version: "1.0.0",
         description: "API documentation for Full Stack JS project",
       },
+      tags: [
+        { name: "Auth", description: "Authentication and user endpoints" },
+        { name: "Contacts", description: "Contact CRUD and search endpoints" },
+        { name: "Misc", description: "Miscellaneous utility endpoints" },
+      ],
       servers: [
         {
           url: `http://localhost:${port}`,

@@ -21,6 +21,8 @@ const handlers = createCrud({
 /**
  * @openapi
  * /contacts:
+ *   tags:
+ *     - Contacts
  *   get:
  *     summary: List contacts
  *     responses:
@@ -32,6 +34,8 @@ router.get("/", handlers.list);
 /**
  * @openapi
  * /contacts:
+ *   tags:
+ *     - Contacts
  *   post:
  *     summary: Create a new contact
  *     requestBody:
@@ -76,6 +80,8 @@ router.post("/findOne", validateBody(FindCriteriaZ), async (req, res, next) => {
 /**
  * @openapi
  * /contacts/{id}:
+ *   tags:
+ *     - Contacts
  *   get:
  *     summary: Get contact by id
  *     parameters:
@@ -93,6 +99,8 @@ router.get("/:id", handlers.get);
 /**
  * @openapi
  * /contacts/{id}:
+ *   tags:
+ *     - Contacts
  *   patch:
  *     summary: Patch contact by id
  *     parameters:
@@ -116,6 +124,8 @@ router.patch("/:id", handlers.patch);
 /**
  * @openapi
  * /contacts/{id}:
+ *   tags:
+ *     - Contacts
  *   put:
  *     summary: Replace contact by id
  *     parameters:
@@ -139,6 +149,8 @@ router.put("/:id", handlers.put);
 /**
  * @openapi
  * /contacts/{id}:
+ *   tags:
+ *     - Contacts
  *   delete:
  *     summary: Remove contact by id
  *     parameters:

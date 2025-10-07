@@ -12,6 +12,8 @@ const router: Router = Router();
  * @openapi
  * /auth/register:
  *   post:
+ *     tags:
+ *       - Auth
  *     summary: Register a new user
  *     requestBody:
  *       required: true
@@ -33,6 +35,8 @@ router.post("/register", validateBody(RegisterZ), authCtrl.register);
  * @openapi
  * /auth/login:
  *   post:
+ *     tags:
+ *       - Auth
  *     summary: Login user and receive tokens
  *     requestBody:
  *       required: true
@@ -54,6 +58,8 @@ router.post("/login", validateBody(LoginZ), authCtrl.login);
  * @openapi
  * /auth/refresh:
  *   post:
+ *     tags:
+ *       - Auth
  *     summary: Refresh auth tokens
  *     requestBody:
  *       required: true
@@ -70,6 +76,8 @@ router.post("/refresh", validateBody(LoginZ.pick({})), authCtrl.refresh);
  * @openapi
  * /auth/logout:
  *   post:
+ *     tags:
+ *       - Auth
  *     summary: Logout user
  *     requestBody:
  *       required: true
@@ -88,6 +96,8 @@ router.post("/logout", validateBody(LoginZ.pick({})), authCtrl.logout);
  * @openapi
  * /auth/me:
  *   get:
+ *     tags:
+ *       - Auth
  *     summary: Get current user
  *     security:
  *       - bearerAuth: []
