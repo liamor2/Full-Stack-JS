@@ -6,6 +6,4 @@ dist
 coverage
 pnpm-debug.log*
 Dockerfile.local
-*.tsbuildinfonode_modules
-tsconfig.tsbuildinfo
-.env
+*.tsbuildinfo

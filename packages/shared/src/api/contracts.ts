@@ -1,4 +1,5 @@
-import type { User, AuthTokens } from "../types/auth.js";
+import type { AuthTokens } from "../types/auth.js";
+import type { User } from "../validators/user.schema.js";
 
 export interface LoginResponse {
   user: User;

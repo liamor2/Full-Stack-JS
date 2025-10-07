@@ -4,9 +4,23 @@ export function greet(name: string): string {
 
 export const VERSION = "0.0.1";
 
-export * from "./types/auth.js";
-export * from "./validation/auth.js";
-export * from "./validation/users.js";
-export * from "./validation/contacts.js";
-export * from "./api/contracts.js";
-export * from "./utils.js";
+export type { AuthTokens, JwtPayload } from "./types/auth.js";
+export type {
+  LoginResponse,
+  RegisterResponse,
+  MeResponse,
+} from "./api/contracts.js";
+export { ContactZ } from "./validators/contact.schema.js";
+export type { Contact } from "./validators/contact.schema.js";
+export { BaseEntityZ } from "./validators/baseEntity.schema.js";
+export type { BaseEntity } from "./validators/baseEntity.schema.js";
+export { UserZ } from "./validators/user.schema.js";
+export type { User } from "./validators/user.schema.js";
+export {
+  AUTH_BASE,
+  AUTH_LOGIN,
+  AUTH_REGISTER,
+  AUTH_REFRESH,
+  AUTH_ME,
+} from "./api/paths.js";
+export { LoginZ, RegisterZ } from "./validators/auth.schema.js";
