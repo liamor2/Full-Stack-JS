@@ -1,8 +1,9 @@
+import { LoginZ, RegisterZ } from "@full-stack-js/shared";
 import { Router } from "express";
+
 import * as authCtrl from "../controllers/auth.js";
 import requireAuth from "../middleware/auth.js";
 import validateBody from "../middleware/validate.js";
-import { LoginZ, RegisterZ } from "@full-stack-js/shared";
 
 const router: Router = Router();
 

@@ -1,9 +1,10 @@
+import dotenv from "dotenv";
 import express, { Express } from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
+
 import authRoutes from "./routes/auth.js";
-import miscRoutes from "./routes/misc.js";
 import contactsRoutes from "./routes/contacts.js";
+import miscRoutes from "./routes/misc.js";
 
 dotenv.config();
 

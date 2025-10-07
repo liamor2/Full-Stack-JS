@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
 import { ContactZ } from "@full-stack-js/shared";
+import mongoose from "mongoose";
+
 import zodToMongoose from "../utils/zod-to-mongoose.js";
 
 const def = zodToMongoose(ContactZ) as Record<string, any>;

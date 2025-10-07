@@ -1,5 +1,5 @@
-import { Router } from "express";
 import { greet } from "@full-stack-js/shared";
+import { Router } from "express";
 
 const router: Router = Router();
 

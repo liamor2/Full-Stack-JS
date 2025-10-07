@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+
 import { UserModel } from "../models/user.js";
 
 export const requireAdmin = async (

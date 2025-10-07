@@ -1,8 +1,9 @@
-import { Router } from "express";
-import createCrud from "../controllers/crud.js";
-import { ContactModel } from "../models/contact.js";
 import { ContactZ } from "@full-stack-js/shared";
+import { Router } from "express";
+
+import createCrud from "../controllers/crud.js";
 import validateBody from "../middleware/validate.js";
+import { ContactModel } from "../models/contact.js";
 
 const FindCriteriaZ = ContactZ.partial().refine(
   (v) => Object.keys(v as Record<string, unknown>).length > 0,

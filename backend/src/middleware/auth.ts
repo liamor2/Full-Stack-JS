@@ -1,6 +1,6 @@
+import type { JwtPayload } from "@full-stack-js/shared";
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import type { JwtPayload } from "@full-stack-js/shared";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev_jwt_secret";
 

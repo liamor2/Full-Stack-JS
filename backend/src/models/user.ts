@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
-import argon2 from "argon2";
 import { UserZ } from "@full-stack-js/shared";
+import argon2 from "argon2";
+import mongoose from "mongoose";
+
 import zodToMongoose from "../utils/zod-to-mongoose.js";
 
 export interface IUser {
