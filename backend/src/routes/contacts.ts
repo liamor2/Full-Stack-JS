@@ -18,7 +18,32 @@ const handlers = createCrud({
   idParam: "id",
 });
 
+/**
+ * @openapi
+ * /contacts:
+ *   get:
+ *     summary: List contacts
+ *     responses:
+ *       200:
+ *         description: Array of contacts
+ */
 router.get("/", handlers.list);
+
+/**
+ * @openapi
+ * /contacts:
+ *   post:
+ *     summary: Create a new contact
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Contact'
+ *     responses:
+ *       201:
+ *         description: Created
+ */
 router.post("/", handlers.create);
 
 // Search endpoints
@@ -48,9 +73,84 @@ router.post("/findOne", validateBody(FindCriteriaZ), async (req, res, next) => {
   }
 });
 
+/**
+ * @openapi
+ * /contacts/{id}:
+ *   get:
+ *     summary: Get contact by id
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Contact
+ */
 router.get("/:id", handlers.get);
+
+/**
+ * @openapi
+ * /contacts/{id}:
+ *   patch:
+ *     summary: Patch contact by id
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Contact'
+ *     responses:
+ *       200:
+ *         description: Updated
+ */
 router.patch("/:id", handlers.patch);
+
+/**
+ * @openapi
+ * /contacts/{id}:
+ *   put:
+ *     summary: Replace contact by id
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Contact'
+ *     responses:
+ *       200:
+ *         description: Replaced
+ */
 router.put("/:id", handlers.put);
+
+/**
+ * @openapi
+ * /contacts/{id}:
+ *   delete:
+ *     summary: Remove contact by id
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: No content
+ */
 router.delete("/:id", handlers.remove);
 
 export default router;

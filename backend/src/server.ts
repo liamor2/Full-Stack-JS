@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/auth.js";
 import contactsRoutes from "./routes/contacts.js";
 import miscRoutes from "./routes/misc.js";
+import createSwagger from "./utils/swagger.js";
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/", miscRoutes);
 app.use("/contacts", contactsRoutes);
+
+createSwagger(app, port);
 
 const mongoUri =
   process.env.MONGO_URI || "mongodb://localhost:27017/app?authSource=admin";
