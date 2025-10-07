@@ -7,10 +7,16 @@ import ContactCard from "./ContactCard.js";
 interface Props {
   contacts: ContactResponse[];
   onDelete: (id: string) => void;
+  onEdit?: (id: string) => void;
   pending?: boolean;
 }
 
-const ContactsGrid = ({ contacts, onDelete, pending = false }: Props) => (
+const ContactsGrid = ({
+  contacts,
+  onDelete,
+  onEdit,
+  pending = false,
+}: Props) => (
   <Box
     sx={{
       display: "grid",
@@ -26,17 +32,31 @@ const ContactsGrid = ({ contacts, onDelete, pending = false }: Props) => (
         key={(contact as any)._id ?? (contact as any).id}
         contact={contact}
         action={
-          <Button
-            color="error"
-            size="small"
-            variant="outlined"
-            onClick={() =>
-              onDelete((contact as any)._id ?? (contact as any).id)
-            }
-            disabled={pending}
-          >
-            Delete
-          </Button>
+          <>
+            <Button
+              color="primary"
+              size="small"
+              variant="outlined"
+              onClick={() =>
+                onEdit?.((contact as any)._id ?? (contact as any).id)
+              }
+              disabled={pending}
+              sx={{ mr: 1 }}
+            >
+              Edit
+            </Button>
+            <Button
+              color="error"
+              size="small"
+              variant="outlined"
+              onClick={() =>
+                onDelete((contact as any)._id ?? (contact as any).id)
+              }
+              disabled={pending}
+            >
+              Delete
+            </Button>
+          </>
         }
       />
     ))}

@@ -27,9 +27,13 @@ const DashboardPage = () => {
     setFeedback,
     handleCreate,
     handleDelete,
+    handleUpdate,
   } = useContacts();
 
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [editing, setEditing] = useState<null | { id: string; values: any }>(
+    null,
+  );
 
   const hasContacts = contacts.length > 0;
 
@@ -76,6 +80,13 @@ const DashboardPage = () => {
           <ContactsGrid
             contacts={contacts}
             onDelete={handleDelete}
+            onEdit={(id) => {
+              const contact = contacts.find(
+                (c) => (c as any)._id === id || (c as any).id === id,
+              );
+              setEditing(contact ? { id, values: contact } : null);
+              setDialogOpen(true);
+            }}
             pending={pending}
           />
         ) : (
@@ -85,9 +96,22 @@ const DashboardPage = () => {
 
       <ContactFormDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        mode={editing ? "edit" : "create"}
+        initialValues={editing?.values}
+        onClose={() => {
+          setDialogOpen(false);
+          setEditing(null);
+        }}
         pending={pending}
-        onSubmit={handleCreate}
+        onSubmit={async (values) => {
+          if (editing) {
+            await handleUpdate(editing.id, values);
+            setEditing(null);
+          } else {
+            await handleCreate(values);
+          }
+          setDialogOpen(false);
+        }}
       />
 
       <Snackbar

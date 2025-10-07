@@ -34,7 +34,7 @@ export async function updateContact(
   payload: ContactUpdate,
   token: string,
 ) {
-  return apiClient.put<ContactResponse, ContactUpdate>(
+  return apiClient.patch<ContactResponse, ContactUpdate>(
     `/contacts/${id}`,
     payload,
     token,

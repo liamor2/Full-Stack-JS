@@ -9,6 +9,7 @@ import {
   createContact,
   deleteContact,
   fetchContacts,
+  updateContact,
 } from "../api/contacts.js";
 
 import useAuth from "./useAuth.js";
@@ -109,6 +110,41 @@ const useContacts = () => {
     [token],
   );
 
+  const handleUpdate = useCallback(
+    async (id: string, values: Partial<ContactCreate>) => {
+      if (!token) {
+        setError("Not authenticated");
+        return;
+      }
+      setPending(true);
+      setError(null);
+      setFeedback(null);
+      try {
+        const payload: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(values ?? {})) {
+          if (v === undefined) continue;
+          if (typeof v === "string" && v.trim() === "") continue;
+          payload[k] = v;
+        }
+
+        const updated = await updateContact(id, payload as any, token);
+        setContacts((prev) =>
+          prev.map((c) =>
+            (c as any)._id === id || (c as any).id === id ? updated : c,
+          ),
+        );
+        setFeedback("Contact updated");
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to update contact";
+        setError(message);
+      } finally {
+        setPending(false);
+      }
+    },
+    [token],
+  );
+
   return {
     contacts,
     loading,
@@ -120,6 +156,7 @@ const useContacts = () => {
     handleCreate,
     handleDelete,
     setContacts,
+    handleUpdate,
   } as const;
 };
 
