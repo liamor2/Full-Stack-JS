@@ -1,4 +1,4 @@
-import type { RegisterRequest } from "@full-stack-js/shared";
+import type { Register } from "@full-stack-js/shared";
 import {
   Button,
   CircularProgress,
@@ -8,8 +8,8 @@ import {
 } from "@mui/material";
 
 interface Props {
-  form: RegisterRequest;
-  onChange: (field: keyof RegisterRequest, value: string) => void;
+  form: Register;
+  onChange: (field: any, value: string) => void;
   onSubmit: () => void;
   loading?: boolean;
 }
@@ -34,15 +34,9 @@ const RegisterForm = ({ form, onChange, onSubmit, loading = false }: Props) => (
 
     <Stack spacing={2}>
       <TextField
-        label="Username"
-        value={form.username ?? ""}
-        onChange={(e) => onChange("username", e.target.value)}
-        required
-      />
-      <TextField
         label="Email"
         type="email"
-        value={form.email}
+        value={form.email ?? ""}
         onChange={(e) => onChange("email", e.target.value)}
         required
         autoComplete="email"
@@ -50,7 +44,7 @@ const RegisterForm = ({ form, onChange, onSubmit, loading = false }: Props) => (
       <TextField
         label="Password"
         type="password"
-        value={form.password}
+        value={form.password ?? ""}
         onChange={(e) => onChange("password", e.target.value)}
         required
         autoComplete="new-password"

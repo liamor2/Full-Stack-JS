@@ -1,4 +1,10 @@
-import type { ContactCreate, ContactUpdate } from "@full-stack-js/shared";
+import type { Contact } from "@full-stack-js/shared";
+type ContactCreate = Omit<Contact, "createdAt" | "updatedAt" | "deleted"> & {
+  firstName?: string;
+  lastName?: string;
+  owner?: string;
+};
+type ContactUpdate = Partial<ContactCreate>;
 import {
   Box,
   Button,
@@ -22,11 +28,11 @@ interface ContactFormDialogProps {
 }
 
 const emptyValues: Partial<ContactCreate> = {
-  firstName: "",
-  lastName: "",
+  name: "",
   email: "",
-  phoneNumber: "",
+  phone: "",
   address: "",
+  note: "",
 };
 
 const ContactFormDialog = ({
@@ -45,7 +51,10 @@ const ContactFormDialog = ({
 
   const handleChange =
     (field: keyof ContactCreate) => (event: ChangeEvent<HTMLInputElement>) => {
-      setValues((prev) => ({ ...prev, [field]: event.target.value }));
+      setValues((prev: Partial<ContactCreate>) => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
     };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -69,17 +78,9 @@ const ContactFormDialog = ({
           >
             <TextField
               autoFocus
-              label="First name"
-              value={values.firstName ?? ""}
-              onChange={handleChange("firstName")}
-              required
-              fullWidth
-              margin="dense"
-            />
-            <TextField
-              label="Last name"
-              value={values.lastName ?? ""}
-              onChange={handleChange("lastName")}
+              label="Name"
+              value={values.name ?? ""}
+              onChange={handleChange("name")}
               required
               fullWidth
               margin="dense"
@@ -94,8 +95,8 @@ const ContactFormDialog = ({
             />
             <TextField
               label="Phone number"
-              value={values.phoneNumber ?? ""}
-              onChange={handleChange("phoneNumber")}
+              value={values.phone ?? ""}
+              onChange={handleChange("phone")}
               fullWidth
               margin="dense"
             />

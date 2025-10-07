@@ -27,7 +27,6 @@ export function createSwagger(app: Express, port: number) {
 
   const swaggerSpec = swaggerJsdoc(swaggerOptions as any);
 
-  // attach UI and JSON
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.get("/docs.json", (req, res) => res.json(swaggerSpec));
 

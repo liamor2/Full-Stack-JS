@@ -1,4 +1,8 @@
-import type { ContactCreate, ContactResponse } from "@full-stack-js/shared";
+import type { Contact } from "@full-stack-js/shared";
+type ContactResponse = Contact;
+type ContactCreate = Omit<Contact, "createdAt" | "updatedAt" | "deleted"> & {
+  owner?: string;
+};
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -17,7 +21,7 @@ const useContacts = () => {
   const [pending, setPending] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const ownerId = user?.id;
+  const ownerId = (user as any)?.id;
 
   const loadContacts = useCallback(async () => {
     if (!token) return;
@@ -42,8 +46,8 @@ const useContacts = () => {
   const handleCreate = useCallback(
     async (values: Partial<ContactCreate>) => {
       if (!token || !ownerId) return;
-      if (!values.firstName || !values.lastName) {
-        setError("First and last name are required");
+      if (!values.name) {
+        setError("Name is required");
         return;
       }
       setPending(true);
@@ -51,15 +55,15 @@ const useContacts = () => {
       setFeedback(null);
       try {
         const payload: ContactCreate = {
-          firstName: values.firstName,
-          lastName: values.lastName,
+          name: values.name || "",
           owner: ownerId,
           email: values.email || undefined,
-          phoneNumber: values.phoneNumber || undefined,
+          phone: values.phone || undefined,
           address: values.address || undefined,
+          note: values.note || undefined,
         };
         const created = await createContact(payload, token);
-        setContacts((prev) => [created, ...prev]);
+        setContacts((prev: ContactResponse[]) => [created, ...prev]);
         setFeedback("Contact created successfully");
       } catch (err) {
         const message =
@@ -80,7 +84,9 @@ const useContacts = () => {
       setFeedback(null);
       try {
         await deleteContact(id, token);
-        setContacts((prev) => prev.filter((contact) => contact.id !== id));
+        setContacts((prev: ContactResponse[]) =>
+          prev.filter((contact) => (contact as any).id !== id),
+        );
         setFeedback("Contact deleted");
       } catch (err) {
         const message =

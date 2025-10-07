@@ -1,4 +1,3 @@
-// ...existing code...
 import {
   Box,
   CircularProgress,
@@ -36,7 +35,10 @@ const DashboardPage = () => {
 
   const greeting = useMemo(() => {
     if (!user) return "";
-    return user.username ?? user.email;
+    const first = (user as any).firstName;
+    const last = (user as any).lastName;
+    if (first || last) return `${first ?? ""} ${last ?? ""}`.trim();
+    return user.email;
   }, [user]);
 
   return (

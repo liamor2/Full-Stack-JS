@@ -1,4 +1,5 @@
-import type { ContactResponse } from "@full-stack-js/shared";
+import type { Contact } from "@full-stack-js/shared";
+type ContactResponse = Contact;
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 
@@ -18,16 +19,16 @@ const ContactCard = ({ contact, action }: ContactCardProps) => {
         >
           <Stack spacing={0.5}>
             <Typography variant="h6" fontWeight={600}>
-              {contact.firstName} {contact.lastName}
+              {contact.name}
             </Typography>
             {contact.email ? (
               <Typography variant="body2" color="text.secondary">
                 {contact.email}
               </Typography>
             ) : null}
-            {contact.phoneNumber ? (
+            {contact.phone ? (
               <Typography variant="body2" color="text.secondary">
-                {contact.phoneNumber}
+                {contact.phone}
               </Typography>
             ) : null}
             {contact.address ? (
@@ -36,7 +37,7 @@ const ContactCard = ({ contact, action }: ContactCardProps) => {
               </Typography>
             ) : null}
             <Typography variant="caption" color="text.disabled">
-              Owner: {contact.owner}
+              Owner: {(contact as any).createdBy ?? "-"}
             </Typography>
           </Stack>
           {action}

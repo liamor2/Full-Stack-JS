@@ -1,4 +1,4 @@
-import type { RegisterRequest } from "@full-stack-js/shared";
+import type { Register } from "@full-stack-js/shared";
 import { Alert } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -7,8 +7,7 @@ import AuthShell from "../components/AuthShell.js";
 import RegisterForm from "../components/RegisterForm.js";
 import useAuth from "../hooks/useAuth.js";
 
-const initial: RegisterRequest = {
-  username: "",
+const initial: Register = {
   email: "",
   password: "",
 };
@@ -16,11 +15,11 @@ const initial: RegisterRequest = {
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { register, loading } = useAuth();
-  const [form, setForm] = useState<RegisterRequest>(initial);
+  const [form, setForm] = useState<Register>(initial);
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (field: keyof RegisterRequest, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof Register, value: string) => {
+    setForm((prev: Register) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async () => {

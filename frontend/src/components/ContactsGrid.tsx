@@ -1,4 +1,5 @@
-import type { ContactResponse } from "@full-stack-js/shared";
+import type { Contact } from "@full-stack-js/shared";
+type ContactResponse = Contact;
 import { Box, Button } from "@mui/material";
 
 import ContactCard from "./ContactCard.js";
@@ -22,14 +23,16 @@ const ContactsGrid = ({ contacts, onDelete, pending = false }: Props) => (
   >
     {contacts.map((contact) => (
       <ContactCard
-        key={contact.id}
+        key={(contact as any)._id ?? (contact as any).id}
         contact={contact}
         action={
           <Button
             color="error"
             size="small"
             variant="outlined"
-            onClick={() => onDelete(contact.id)}
+            onClick={() =>
+              onDelete((contact as any)._id ?? (contact as any).id)
+            }
             disabled={pending}
           >
             Delete

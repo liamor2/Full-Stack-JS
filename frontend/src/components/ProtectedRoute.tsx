@@ -10,8 +10,6 @@ const ProtectedRoute = () => {
   const location = useLocation();
   const notify = useNotification();
 
-  // Avoid calling notify during render (which triggers setState in the provider).
-  // Instead, schedule the notification as a side-effect when we know we'll redirect.
   const willRedirect =
     !loading && !isAuthenticated && location.pathname !== "/login";
 

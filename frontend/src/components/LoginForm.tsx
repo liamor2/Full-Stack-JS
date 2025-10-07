@@ -1,4 +1,4 @@
-import type { LoginRequest } from "@full-stack-js/shared";
+import type { Login } from "@full-stack-js/shared";
 import {
   Button,
   CircularProgress,
@@ -8,8 +8,8 @@ import {
 } from "@mui/material";
 
 interface Props {
-  form: LoginRequest;
-  onChange: (field: keyof LoginRequest, value: string) => void;
+  form: Login;
+  onChange: (field: any, value: string) => void;
   onSubmit: () => void;
   loading?: boolean;
 }

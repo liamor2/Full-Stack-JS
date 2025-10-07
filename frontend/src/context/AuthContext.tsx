@@ -1,9 +1,5 @@
 /* eslint-disable no-undef */
-import type {
-  LoginRequest,
-  RegisterRequest,
-  User,
-} from "@full-stack-js/shared";
+import type { Login, Register, User } from "@full-stack-js/shared";
 import React, {
   createContext,
   useCallback,
@@ -23,8 +19,8 @@ export interface AuthContextValue {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (credentials: LoginRequest) => Promise<void>;
-  register: (payload: RegisterRequest) => Promise<void>;
+  login: (credentials: Login) => Promise<void>;
+  register: (payload: Register) => Promise<void>;
   logout: () => void;
   refresh: () => Promise<void>;
 }
@@ -80,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [token, loadProfile]);
 
   const handleLogin = useCallback(
-    async (credentials: LoginRequest) => {
+    async (credentials: Login) => {
       setLoading(true);
       try {
         const response = await apiLogin(credentials);
@@ -100,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const handleRegister = useCallback(
-    async (payload: RegisterRequest) => {
+    async (payload: Register) => {
       setLoading(true);
       try {
         const response = await apiRegister(payload);

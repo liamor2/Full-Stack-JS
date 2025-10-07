@@ -1,4 +1,4 @@
-import type { LoginRequest } from "@full-stack-js/shared";
+import type { Login } from "@full-stack-js/shared";
 import { Alert } from "@mui/material";
 import { useState } from "react";
 import {
@@ -12,7 +12,7 @@ import AuthShell from "../components/AuthShell.js";
 import LoginForm from "../components/LoginForm.js";
 import useAuth from "../hooks/useAuth.js";
 
-const initialState: LoginRequest = {
+const initialState: Login = {
   email: "",
   password: "",
 };
@@ -21,7 +21,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, loading } = useAuth();
-  const [form, setForm] = useState<LoginRequest>(initialState);
+  const [form, setForm] = useState<Login>(initialState);
   const [error, setError] = useState<string | null>(null);
 
   const from =
@@ -32,8 +32,8 @@ const LoginPage = () => {
     return <Navigate to={from} replace />;
   }
 
-  const handleChange = (field: keyof LoginRequest, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof Login, value: string) => {
+    setForm((prev: Login) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async () => {

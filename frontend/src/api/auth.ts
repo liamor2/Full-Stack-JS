@@ -1,24 +1,15 @@
-import type {
-  LoginRequest,
-  RegisterRequest,
-  LoginResponse,
-} from "@full-stack-js/shared";
+import type { Login, Register, LoginResponse } from "@full-stack-js/shared";
 
 import apiClient from "./client.js";
 
 type AuthResponse = LoginResponse;
 
-export async function login(credentials: LoginRequest): Promise<AuthResponse> {
-  return apiClient.post<AuthResponse, LoginRequest>("/auth/login", credentials);
+export async function login(credentials: Login): Promise<AuthResponse> {
+  return apiClient.post<AuthResponse, Login>("/auth/login", credentials);
 }
 
-export async function register(
-  payload: RegisterRequest,
-): Promise<AuthResponse> {
-  return apiClient.post<AuthResponse, RegisterRequest>(
-    "/auth/register",
-    payload,
-  );
+export async function register(payload: Register): Promise<AuthResponse> {
+  return apiClient.post<AuthResponse, Register>("/auth/register", payload);
 }
 
 export async function fetchCurrentUser(token: string) {

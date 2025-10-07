@@ -1,8 +1,15 @@
-import type {
-  ContactCreate,
-  ContactResponse,
-  ContactUpdate,
-} from "@full-stack-js/shared";
+import type { Contact } from "@full-stack-js/shared";
+
+export type ContactResponse = Contact;
+export type ContactCreate = Omit<
+  Contact,
+  "createdAt" | "updatedAt" | "deleted"
+> & {
+  firstName?: string;
+  lastName?: string;
+  owner?: string;
+};
+export type ContactUpdate = Partial<ContactCreate>;
 
 import apiClient from "./client.js";
 
