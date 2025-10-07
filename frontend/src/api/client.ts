@@ -13,17 +13,20 @@ export interface ApiErrorPayload {
   message: string;
   details?: unknown;
   status?: number;
+  body?: unknown;
 }
 
 export class ApiError extends Error {
   status: number;
   details?: unknown;
+  body?: unknown;
 
   constructor(payload: ApiErrorPayload) {
     super(payload.message);
     this.name = "ApiError";
     this.status = payload.status ?? 500;
     this.details = payload.details;
+    this.body = (payload as any).body;
   }
 }
 
@@ -50,10 +53,19 @@ export async function request<TResponse, TBody = unknown>(
   const data = isJson ? await res.json() : await res.text();
 
   if (!res.ok) {
+    // normalize common backend shapes: { error, details } or { message, details }
+    const body = isJson ? data : undefined;
+    const message =
+      isJson && (data?.message || data?.error)
+        ? data?.message || data?.error
+        : res.statusText;
+    const details = isJson ? (data?.details ?? undefined) : undefined;
+
     throw new ApiError({
-      message: isJson && data?.message ? data.message : res.statusText,
-      details: isJson ? data?.details : data,
+      message,
+      details,
       status: res.status,
+      body,
     });
   }
 

@@ -28,7 +28,22 @@ const RegisterPage = () => {
       await register(form);
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to register";
+      let message = "Failed to register";
+      if (err && typeof err === "object") {
+        const details = (err as any).details ?? (err as any).body?.details;
+        if (Array.isArray(details) && details.length > 0) {
+          message = details.map((d: any) => d.message).join(", ");
+        } else if (err instanceof Error) {
+          message = err.message;
+        } else if ((err as any).message) {
+          message = (err as any).message;
+        } else if ((err as any).error) {
+          message = (err as any).error;
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+
       setError(message || "Failed to register");
     }
   };
