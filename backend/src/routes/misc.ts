@@ -6,9 +6,9 @@ const router: Router = Router();
 /**
  * @openapi
  * /hello:
- *   tags:
- *     - Misc
  *   get:
+ *     tags:
+ *       - Misc
  *     summary: Greet someone
  *     parameters:
  *       - in: query
@@ -38,9 +38,9 @@ router.get("/hello", (req, res) => {
 /**
  * @openapi
  * /health:
- *   tags:
- *     - Misc
  *   get:
+ *     tags:
+ *       - Misc
  *     summary: Health check
  *     responses:
  *       200:
