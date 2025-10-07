@@ -21,7 +21,7 @@ const useContacts = () => {
   const [pending, setPending] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const ownerId = (user as any)?.id;
+  const ownerId = (user as any)?._id ?? (user as any)?.id ?? undefined;
 
   const loadContacts = useCallback(async () => {
     if (!token) return;
@@ -45,7 +45,14 @@ const useContacts = () => {
 
   const handleCreate = useCallback(
     async (values: Partial<ContactCreate>) => {
-      if (!token || !ownerId) return;
+      if (!token) {
+        setError("Not authenticated");
+        return;
+      }
+      if (!ownerId) {
+        setError("User id not available");
+        return;
+      }
       if (!values.name) {
         setError("Name is required");
         return;
