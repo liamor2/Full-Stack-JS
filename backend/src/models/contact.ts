@@ -1,12 +1,12 @@
-import { ContactZ } from "@full-stack-js/shared";
 import mongoose from "mongoose";
 
-import zodToMongoose from "../utils/zod-to-mongoose.js";
-
-const def = zodToMongoose(ContactZ) as Record<string, any>;
-
-delete def.createdAt;
-delete def.updatedAt;
+const def: Record<string, any> = {
+  name: { type: String, required: true },
+  email: { type: String },
+  phone: { type: String },
+  address: { type: String },
+  note: { type: String },
+};
 
 const contactSchema = new mongoose.Schema(def, { timestamps: true });
 

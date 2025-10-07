@@ -1,8 +1,5 @@
-import { UserZ } from "@full-stack-js/shared";
 import argon2 from "argon2";
 import mongoose from "mongoose";
-
-import zodToMongoose from "../utils/zod-to-mongoose.js";
 
 export interface IUser {
   email: string;
@@ -18,10 +15,13 @@ export interface IUserDocument extends mongoose.Document, IUser {
   comparePassword(candidate: string): Promise<boolean>;
 }
 
-const def = zodToMongoose(UserZ) as Record<string, any>;
-
-delete def.createdAt;
-delete def.updatedAt;
+const def: Record<string, any> = {
+  email: { type: String, required: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ["admin", "user"], default: "user" },
+  firstName: { type: String },
+  lastName: { type: String },
+};
 
 const userSchema = new mongoose.Schema<IUserDocument>(def, {
   timestamps: true,
