@@ -9,8 +9,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json --outDir dist",
-    "clean": "rimraf dist"
+    "build": "tsc -b --force",
+    "clean": "rimraf dist tsconfig.tsbuildinfo"
   },
   "exports": {
     ".": {
@@ -19,10 +19,9 @@
     }
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "rimraf": "^6.0.1"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
-    "zod": "^4.1.9"
+    "zod": "^4.1.11"
   }
 }

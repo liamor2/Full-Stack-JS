@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.json && vite build",
+    "build": "tsc -b --force && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -18,7 +18,8 @@
     "gsap": "^3.13.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^7.9.3",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/react": "^18.3.5",
