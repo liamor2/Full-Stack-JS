@@ -9,7 +9,12 @@ export async function login(credentials: Login): Promise<AuthResponse> {
 }
 
 export async function register(payload: Register): Promise<AuthResponse> {
-  return apiClient.post<AuthResponse, Register>("/auth/register", payload);
+  await apiClient.post<unknown, Register>("/auth/register", payload);
+  const loginPayload: Login = {
+    email: payload.email,
+    password: payload.password,
+  };
+  return login(loginPayload);
 }
 
 export async function fetchCurrentUser(token: string) {

@@ -19,6 +19,13 @@ export const register: RequestHandler = (req, res, next) => {
   (async () => {
     try {
       const { email, password, role, firstName, lastName } = req.body;
+
+      const existing = await UserModel.findOne({ email }).exec();
+      if (existing) {
+        res.status(409).json({ error: "User already exists" });
+        return;
+      }
+
       const created = await UserModel.create({
         email,
         password,

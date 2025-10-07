@@ -53,7 +53,6 @@ export async function request<TResponse, TBody = unknown>(
   const data = isJson ? await res.json() : await res.text();
 
   if (!res.ok) {
-    // normalize common backend shapes: { error, details } or { message, details }
     const body = isJson ? data : undefined;
     const message =
       isJson && (data?.message || data?.error)

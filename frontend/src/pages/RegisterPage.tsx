@@ -28,6 +28,7 @@ const RegisterPage = () => {
       await register(form);
       navigate("/dashboard", { replace: true });
     } catch (err) {
+      console.error(err);
       let message = "Failed to register";
       if (err && typeof err === "object") {
         const details = (err as any).details ?? (err as any).body?.details;
