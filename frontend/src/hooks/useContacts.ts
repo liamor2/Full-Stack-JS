@@ -92,7 +92,10 @@ const useContacts = () => {
       try {
         await deleteContact(id, token);
         setContacts((prev: ContactResponse[]) =>
-          prev.filter((contact) => (contact as any).id !== id),
+          prev.filter(
+            (contact) =>
+              (contact as any)._id !== id && (contact as any).id !== id,
+          ),
         );
         setFeedback("Contact deleted");
       } catch (err) {
