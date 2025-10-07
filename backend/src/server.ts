@@ -1,3 +1,4 @@
+import cors from "cors";
 import dotenv from "dotenv";
 import express, { Express } from "express";
 import mongoose from "mongoose";
@@ -13,6 +14,15 @@ const app: Express = express();
 const port = Number(process.env.PORT || 3000);
 
 app.use(express.json());
+
+const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+app.use(
+  cors({
+    exposedHeaders: ["Authorization"],
+    origin: frontendOrigin,
+    credentials: true,
+  }),
+);
 
 app.use("/auth", authRoutes);
 app.use("/", miscRoutes);

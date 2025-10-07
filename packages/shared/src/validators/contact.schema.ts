@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { BaseEntityZ } from "./baseEntity.schema.js";
 
 export const ContactZ = BaseEntityZ.extend({
