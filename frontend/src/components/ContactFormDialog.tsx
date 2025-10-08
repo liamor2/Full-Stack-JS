@@ -23,7 +23,43 @@ import {
   type FormEvent,
 } from "react";
 import PhoneInputField from "./PhoneInputField.js";
+import { ApiError } from "../api/client.js";
 import { ContactZ } from "@full-stack-js/shared";
+
+function formatDetails(details: unknown): string | null {
+  if (details === undefined || details === null) return null;
+  if (Array.isArray(details))
+    return details.map((d: any) => d?.message || String(d)).join("; ");
+  if (typeof details === "string") return details;
+  try {
+    return JSON.stringify(details);
+  } catch {
+    return null;
+  }
+}
+
+function formatApiError(e: ApiError): string {
+  const body: any = e.body ?? e.details ?? {};
+  const msg = body?.message || body?.error;
+  if (msg) return msg;
+  const details = body?.details ?? e.details;
+  const formatted = formatDetails(details);
+  return formatted ?? e.message ?? "Request failed";
+}
+
+function formatError(e: unknown): string {
+  if (e instanceof ApiError) return formatApiError(e);
+  if (e instanceof Error) return e.message;
+  if (e && typeof e === "object") {
+    try {
+      return JSON.stringify(e);
+    } catch {
+      return "Failed to submit";
+    }
+  }
+  if (e == null) return "Failed to submit";
+  return String(e);
+}
 
 interface ContactFormDialogProps {
   open: boolean;
@@ -81,7 +117,6 @@ const ContactFormDialog = ({
   }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    console.log("Submitting form", values);
     event.preventDefault();
     setErrors({});
 
@@ -116,8 +151,7 @@ const ContactFormDialog = ({
       setNonFieldError(null);
       await onSubmit(payload as Partial<ContactCreate & ContactUpdate>);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to submit";
-      setNonFieldError(message);
+      setNonFieldError(formatError(err));
       return;
     }
   };
