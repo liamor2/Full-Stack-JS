@@ -28,37 +28,41 @@ const ContactsGrid = ({
     }}
   >
     {contacts.map((contact) => (
-      <ContactCard
+      <div
         key={(contact as any)._id ?? (contact as any).id}
-        contact={contact}
-        action={
-          <>
-            <Button
-              color="primary"
-              size="small"
-              variant="outlined"
-              onClick={() =>
-                onEdit?.((contact as any)._id ?? (contact as any).id)
-              }
-              disabled={pending}
-              sx={{ mr: 1 }}
-            >
-              Edit
-            </Button>
-            <Button
-              color="error"
-              size="small"
-              variant="outlined"
-              onClick={() =>
-                onDelete((contact as any)._id ?? (contact as any).id)
-              }
-              disabled={pending}
-            >
-              Delete
-            </Button>
-          </>
-        }
-      />
+        className="contact-item"
+      >
+        <ContactCard
+          contact={contact}
+          action={
+            <>
+              <Button
+                color="primary"
+                size="small"
+                variant="outlined"
+                onClick={() =>
+                  onEdit?.((contact as any)._id ?? (contact as any).id)
+                }
+                disabled={pending}
+                sx={{ mr: 1 }}
+              >
+                Edit
+              </Button>
+              <Button
+                color="error"
+                size="small"
+                variant="outlined"
+                onClick={() =>
+                  onDelete((contact as any)._id ?? (contact as any).id)
+                }
+                disabled={pending}
+              >
+                Delete
+              </Button>
+            </>
+          }
+        />
+      </div>
     ))}
   </Box>
 );

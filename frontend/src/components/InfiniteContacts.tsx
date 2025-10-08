@@ -7,6 +7,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 import ContactsGrid from "./ContactsGrid.js";
 import useAuth from "../hooks/useAuth.js";
@@ -20,6 +22,7 @@ interface Props {
   pending?: boolean;
   onDelete: (id: string) => void;
   onEdit?: (id: string) => void;
+  reloadKey?: number;
 }
 
 const InfiniteContacts = ({
@@ -28,6 +31,7 @@ const InfiniteContacts = ({
   pending = false,
   onDelete,
   onEdit,
+  reloadKey,
 }: Props) => {
   const { token } = useAuth();
   const [items, setItems] = useState<ContactResponse[]>([]);
@@ -36,6 +40,9 @@ const InfiniteContacts = ({
   const [hasMore, setHasMore] = useState<boolean>(true);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useGSAP(() => {}, { scope: rootRef });
+  const prevCountRef = useRef<number>(0);
 
   const loadPage = useCallback(
     async (pageIndex: number) => {
@@ -78,7 +85,56 @@ const InfiniteContacts = ({
     setItems([]);
     setPage(0);
     setHasMore(true);
+    prevCountRef.current = 0;
   }, [criteria]);
+
+  useEffect(() => {
+    if (!rootRef.current) return;
+    if (!items.length) {
+      prevCountRef.current = 0;
+      return;
+    }
+
+    const prev = prevCountRef.current || 0;
+    const added = items.length - prev;
+    if (added <= 0) {
+      prevCountRef.current = items.length;
+      return;
+    }
+
+    const nodes = Array.from(
+      rootRef.current.querySelectorAll<HTMLElement>(".contact-item"),
+    );
+    const newNodes = nodes.slice(-added);
+
+    const anim = gsap.context(() => {
+      if (newNodes.length) {
+        gsap.fromTo(
+          newNodes,
+          { y: 8, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            stagger: 0.05,
+            duration: 0.35,
+            ease: "power2.out",
+          },
+        );
+      }
+    }, rootRef);
+
+    prevCountRef.current = items.length;
+    return () => anim.revert();
+  }, [items.length]);
+
+  useEffect(() => {
+    setItems([]);
+    setPage(0);
+    setHasMore(true);
+    void loadPage(0);
+    setPage(1);
+    prevCountRef.current = 0;
+  }, [reloadKey]);
 
   useEffect(() => {
     if (!hasMore) return;
@@ -112,7 +168,7 @@ const InfiniteContacts = ({
   }
 
   return (
-    <Box>
+    <Box ref={rootRef}>
       {items.length === 0 ? (
         <Typography variant="body1">No contacts found.</Typography>
       ) : (

@@ -48,6 +48,7 @@ const DashboardPage = () => {
   const [editing, setEditing] = useState<null | { id: string; values: any }>(
     null,
   );
+  const [reloadKey, setReloadKey] = useState<number>(0);
 
   const greeting = useMemo(() => {
     if (!user) return "";
@@ -100,6 +101,7 @@ const DashboardPage = () => {
             setEditing(contact ? { id, values: contact } : null);
             setDialogOpen(true);
           }}
+          reloadKey={reloadKey}
         />
       </Container>
 
@@ -116,8 +118,10 @@ const DashboardPage = () => {
           if (editing) {
             await handleUpdate(editing.id, values);
             setEditing(null);
+            setReloadKey((k) => k + 1);
           } else {
             await handleCreate(values);
+            setReloadKey((k) => k + 1);
           }
           setDialogOpen(false);
         }}
