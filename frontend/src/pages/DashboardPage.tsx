@@ -1,6 +1,5 @@
 import {
   Box,
-  CircularProgress,
   Container,
   Snackbar,
   Stack,
@@ -10,20 +9,17 @@ import {
 import { useMemo, useState } from "react";
 
 import ContactFormDialog from "../components/ContactFormDialog.js";
-import ContactsGrid from "../components/ContactsGrid.js";
 import ContactsSearchBar from "../components/ContactsSearchBar.js";
 import DashboardHeader from "../components/DashboardHeader.js";
-import EmptyState from "../components/EmptyState.js";
+
 import useAuth from "../hooks/useAuth.js";
-import { findContacts } from "../api/contacts.js";
+import InfiniteContacts from "../components/InfiniteContacts.js";
 import useContacts from "../hooks/useContacts.js";
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
-  const { token } = useAuth();
   const {
     contacts,
-    loading,
     error,
     pending,
     feedback,
@@ -34,25 +30,17 @@ const DashboardPage = () => {
     loadContacts,
   } = useContacts();
 
-  const [searchResults, setSearchResults] = useState<null | typeof contacts>(
-    null,
-  );
+  const [searchCriteria, setSearchCriteria] = useState<null | Record<
+    string,
+    unknown
+  >>(null);
 
   const handleSearch = async (criteria: Record<string, unknown>) => {
-    try {
-      const payload = { ...criteria, limit: 15, offset: 0 } as Record<
-        string,
-        unknown
-      >;
-      const res = await findContacts(payload, token ?? null);
-      setSearchResults(res);
-    } catch (err) {
-      console.error("Search failed", err);
-    }
+    setSearchCriteria(criteria ?? null);
   };
 
   const handleClearSearch = () => {
-    setSearchResults(null);
+    setSearchCriteria(null);
     void loadContacts();
   };
 
@@ -61,8 +49,6 @@ const DashboardPage = () => {
     null,
   );
 
-  const hasContacts = contacts.length > 0;
-
   const greeting = useMemo(() => {
     if (!user) return "";
     const first = (user as any).firstName;
@@ -70,32 +56,6 @@ const DashboardPage = () => {
     if (first || last) return `${first ?? ""} ${last ?? ""}`.trim();
     return user.email;
   }, [user]);
-
-  let mainContent;
-  if (loading) {
-    mainContent = (
-      <Stack alignItems="center" justifyContent="center" sx={{ py: 10 }}>
-        <CircularProgress />
-      </Stack>
-    );
-  } else if (hasContacts) {
-    mainContent = (
-      <ContactsGrid
-        contacts={contacts}
-        onDelete={handleDelete}
-        onEdit={(id) => {
-          const contact = contacts.find(
-            (c) => (c as any)._id === id || (c as any).id === id,
-          );
-          setEditing(contact ? { id, values: contact } : null);
-          setDialogOpen(true);
-        }}
-        pending={pending}
-      />
-    );
-  } else {
-    mainContent = <EmptyState onCreate={() => setDialogOpen(true)} />;
-  }
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
@@ -128,22 +88,19 @@ const DashboardPage = () => {
           onSearch={handleSearch}
           onClear={handleClearSearch}
         />
-        {searchResults ? (
-          <ContactsGrid
-            contacts={searchResults}
-            onDelete={handleDelete}
-            onEdit={(id) => {
-              const contact = searchResults.find(
-                (c) => (c as any)._id === id || (c as any).id === id,
-              );
-              setEditing(contact ? { id, values: contact } : null);
-              setDialogOpen(true);
-            }}
-            pending={pending}
-          />
-        ) : (
-          mainContent
-        )}
+        <InfiniteContacts
+          criteria={searchCriteria}
+          pageSize={15}
+          pending={pending}
+          onDelete={handleDelete}
+          onEdit={(id) => {
+            const contact = contacts.find(
+              (c) => (c as any)._id === id || (c as any).id === id,
+            );
+            setEditing(contact ? { id, values: contact } : null);
+            setDialogOpen(true);
+          }}
+        />
       </Container>
 
       <ContactFormDialog
