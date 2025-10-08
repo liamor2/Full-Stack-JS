@@ -13,11 +13,15 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-  FormHelperText,
 } from "@mui/material";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import PhoneInput from "react-headless-phone-input";
-import TinyFlag from "tiny-flag-react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
+import PhoneInputField from "./PhoneInputField.js";
 import { ContactZ } from "@full-stack-js/shared";
 
 interface ContactFormDialogProps {
@@ -64,7 +68,7 @@ const ContactFormDialog = ({
       }));
     };
 
-  const handlePhoneChange = (phone: string, country?: string) => {
+  const handlePhoneChange = useCallback((phone: string, country?: string) => {
     setValues((prev) => {
       if (prev.phone === phone) return prev;
       return {
@@ -72,7 +76,7 @@ const ContactFormDialog = ({
         phone,
       };
     });
-  };
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -139,70 +143,14 @@ const ContactFormDialog = ({
               margin="dense"
             />
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <PhoneInput
-                value={values.phone ?? ""}
+              <PhoneInputField
+                value={values.phone}
                 onChange={handlePhoneChange}
-                defaultCountry="US"
-              >
-                {(phoneProps: any) => {
-                  const iso = (phoneProps?.country ?? "us").toUpperCase();
-                  const inputProps = phoneProps.getInputProps
-                    ? phoneProps.getInputProps({
-                        label: "Phone number",
-                        style: {
-                          flex: 1,
-                          border: "none",
-                          outline: "none",
-                          height: 40,
-                          paddingLeft: 8,
-                        },
-                      })
-                    : {
-                        value: values.phone ?? "",
-                        onChange: (e: any) => handlePhoneChange(e.target.value),
-                      };
-
-                  return (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        width: "100%",
-                      }}
-                    >
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", pr: 1 }}
-                      >
-                        <TinyFlag country={iso} />
-                      </Box>
-                      <TextField
-                        value={inputProps.value}
-                        onChange={inputProps.onChange}
-                        label={inputProps.label ?? "Phone number"}
-                        fullWidth
-                        margin="dense"
-                        error={!!errors.phone}
-                        helperText={errors.phone}
-                        slotProps={{
-                          htmlInput: {
-                            ...(() => {
-                              const { value, onChange, label, ...rest } =
-                                inputProps || {};
-                              return rest;
-                            })(),
-                          },
-                        }}
-                      />
-                    </Box>
-                  );
-                }}
-              </PhoneInput>
+                defaultCountry="FR"
+                error={!!errors.phone}
+                helperText={errors.phone}
+              />
             </Box>
-            {errors.phone && (
-              <FormHelperText error sx={{ mt: -1, mb: 1 }}>
-                {errors.phone}
-              </FormHelperText>
-            )}
             <TextField
               label="Address"
               value={values.address ?? ""}
