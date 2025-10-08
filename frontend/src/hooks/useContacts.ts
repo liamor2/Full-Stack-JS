@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   createContact,
   deleteContact,
-  fetchContacts,
+  findContacts,
   updateContact,
 } from "../api/contacts.js";
 
@@ -29,7 +29,7 @@ const useContacts = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchContacts(token);
+      const data = await findContacts({ limit: 15, offset: 0 }, token ?? null);
       setContacts(data);
     } catch (err) {
       const message =

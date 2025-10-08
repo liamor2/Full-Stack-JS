@@ -1,4 +1,5 @@
 import { ContactZ } from "@full-stack-js/shared";
+import { z } from "zod";
 import { Router } from "express";
 
 import createCrud from "../controllers/crud.js";
@@ -6,10 +7,27 @@ import validateBody from "../middleware/validate.js";
 import { ContactModel } from "../models/contact.js";
 import requireAuth from "../middleware/auth.js";
 
-const FindCriteriaZ = ContactZ.partial().refine(
-  (v) => Object.keys(v as Record<string, unknown>).length > 0,
-  { message: "At least one search criterion must be provided" },
-);
+const FindCriteriaZ = ContactZ.partial()
+  .extend({
+    limit: z.number().int().positive().max(100).optional(),
+    offset: z.number().int().min(0).optional(),
+  })
+  .refine(
+    (v) => {
+      const obj = v as Record<string, unknown>;
+      const keys = Object.keys(obj).filter(
+        (k) => k !== "limit" && k !== "offset",
+      );
+      const hasSearchKeys = keys.length > 0;
+      const hasPagination =
+        typeof obj.limit === "number" || typeof obj.offset === "number";
+      return hasSearchKeys || hasPagination;
+    },
+    {
+      message:
+        "At least one search criterion or pagination parameter must be provided",
+    },
+  );
 
 const router: Router = Router();
 
@@ -52,26 +70,57 @@ router.get("/", handlers.list);
 router.post("/", requireAuth, handlers.create);
 
 /**
- * Criteria object extracted from the incoming request body.
+ * The normalized maximum number of items to return, derived from `criteria.limit`.
  *
- * This object is treated as a free-form map of filter and search parameters used
- * to query or filter contacts in the route handler. Typical keys may include
- * "name", "email", "phone", "tags", "page", "limit" and other consumer-defined
- * fields that drive query behavior.
+ * If `criteria.limit` is a number, the value is clamped to the inclusive range [1, 100].
+ * If `criteria.limit` is missing or not a number, the result is `undefined`, allowing
+ * callers to apply a different default behavior.
  *
- * Important: the content is supplied by the client and must be validated and
- * sanitized before being used (e.g., in database queries or business logic).
- * - Validate expected keys and value types.
- * - Coerce/normalize values (e.g., convert paging params to numbers, trim strings).
- * - Use parameterized queries or ORM query builders to avoid injection attacks.
+ * Type: number | undefined
  *
- * @type {Record<string, any>} A plain object mapping criteria keys to values.
+ * @remarks
+ * - Protects against zero or negative limits and overly large requests.
+ *
+ * @example
+ * // criteria.limit = 50  -> limit === 50
+ * // criteria.limit = 500 -> limit === 100
+ * // criteria.limit = 0   -> limit === 1
+ * // criteria.limit = "10"-> limit === undefined
  */
 router.post("/find", validateBody(FindCriteriaZ), async (req, res, next) => {
+  console.log("POST /contacts/find", req.body);
   try {
     const criteria = req.body as Record<string, any>;
-    const q: any = { ...criteria, deleted: false };
-    const docs = await ContactModel.find(q).lean();
+    const limit =
+      typeof criteria.limit === "number"
+        ? Math.min(100, Math.max(1, criteria.limit))
+        : undefined;
+    const offset =
+      typeof criteria.offset === "number" ? Math.max(0, criteria.offset) : 0;
+
+    const q: any = { deleted: false };
+    const skipKeys = new Set(["limit", "offset", "createdAt", "updatedAt"]);
+    for (const [k, v] of Object.entries(criteria)) {
+      if (skipKeys.has(k)) continue;
+      if (v == null) continue;
+
+      const schemaPath = ContactModel.schema.path(k);
+      const isStringField = !schemaPath || schemaPath.instance === "String";
+
+      if (typeof v === "string" && isStringField) {
+        q[k] = { $regex: v, $options: "i" };
+      } else {
+        q[k] = v;
+      }
+    }
+
+    console.log("Search query:", q, { limit, offset });
+    let query = ContactModel.find(q).lean();
+    if (typeof offset === "number" && offset > 0) query = query.skip(offset);
+    if (typeof limit === "number") query = query.limit(limit);
+
+    const docs = await query.exec();
+    console.log(`Found ${docs.length} contacts`);
     res.json(docs);
   } catch (err) {
     next(err as any);

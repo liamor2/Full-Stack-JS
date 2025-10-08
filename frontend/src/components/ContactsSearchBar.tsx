@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box, TextField, MenuItem, Button, Stack } from "@mui/material";
 
 const FIELDS = [
@@ -12,21 +12,43 @@ const FIELDS = [
 interface Props {
   onSearch: (criteria: Record<string, unknown>) => void;
   onClear?: () => void;
+  debounceMs?: number;
 }
 
-const ContactsSearchBar = ({ onSearch, onClear }: Props) => {
+const ContactsSearchBar = ({ onSearch, onClear, debounceMs = 300 }: Props) => {
   const [field, setField] = useState<string>("name");
   const [q, setQ] = useState<string>("");
 
+  const onSearchRef = useRef(onSearch);
+  const onClearRef = useRef(onClear);
+  useEffect(() => {
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
+  useEffect(() => {
+    onClearRef.current = onClear;
+  }, [onClear]);
+
   const handleSearch = () => {
-    if (!q.trim()) return onClear?.();
-    onSearch({ [field]: q.trim() });
+    if (!q.trim()) return onClearRef.current?.();
+    onSearchRef.current({ [field]: q.trim() });
   };
 
   const handleClear = () => {
     setQ("");
-    onClear?.();
+    onClearRef.current?.();
   };
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (!q.trim()) {
+        onClearRef.current?.();
+      } else {
+        onSearchRef.current({ [field]: q.trim() });
+      }
+    }, debounceMs);
+
+    return () => clearTimeout(id);
+  }, [q, field, debounceMs]);
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -61,9 +83,6 @@ const ContactsSearchBar = ({ onSearch, onClear }: Props) => {
             }
           }}
         />
-        <Button variant="outlined" onClick={handleSearch} size="small">
-          Search
-        </Button>
         <Button variant="text" onClick={handleClear} size="small">
           Clear
         </Button>

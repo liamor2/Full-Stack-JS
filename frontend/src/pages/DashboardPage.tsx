@@ -15,10 +15,12 @@ import ContactsSearchBar from "../components/ContactsSearchBar.js";
 import DashboardHeader from "../components/DashboardHeader.js";
 import EmptyState from "../components/EmptyState.js";
 import useAuth from "../hooks/useAuth.js";
+import { findContacts } from "../api/contacts.js";
 import useContacts from "../hooks/useContacts.js";
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
+  const { token } = useAuth();
   const {
     contacts,
     loading,
@@ -31,22 +33,20 @@ const DashboardPage = () => {
     handleUpdate,
     loadContacts,
   } = useContacts();
-  const { token } = useAuth();
+
+  const [searchResults, setSearchResults] = useState<null | typeof contacts>(
+    null,
+  );
 
   const handleSearch = async (criteria: Record<string, unknown>) => {
     try {
-      // dynamic import to avoid circular issues and keep code minimal here
-      const { findContacts } = await import("../api/contacts.js");
-      const results = await findContacts(criteria, token ?? null);
-      // Update local contacts list
-      // We can reuse setContacts via exposing it from the hook, but it's not returned here.
-      // Use loadContacts when clearing to reload the full list.
-      // Temporarily: set contacts via loadContacts replacement by directly updating via a small state.
-      // Simpler approach: replace contacts by calling loadContacts helper exposed by hook in clear.
-      // We'll set a local override state for search results.
-      setSearchResults(results);
+      const payload = { ...criteria, limit: 15, offset: 0 } as Record<
+        string,
+        unknown
+      >;
+      const res = await findContacts(payload, token ?? null);
+      setSearchResults(res);
     } catch (err) {
-      // ignore for now; the hook will surface global errors
       console.error("Search failed", err);
     }
   };
@@ -55,10 +55,6 @@ const DashboardPage = () => {
     setSearchResults(null);
     void loadContacts();
   };
-
-  const [searchResults, setSearchResults] = useState<null | typeof contacts>(
-    null,
-  );
 
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [editing, setEditing] = useState<null | { id: string; values: any }>(
