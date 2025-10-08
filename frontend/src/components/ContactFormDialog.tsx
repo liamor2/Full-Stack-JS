@@ -12,6 +12,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Alert,
   TextField,
 } from "@mui/material";
 import {
@@ -55,6 +56,7 @@ const ContactFormDialog = ({
   const [errors, setErrors] = useState<
     Partial<Record<keyof ContactCreate, string>>
   >({});
+  const [nonFieldError, setNonFieldError] = useState<string | null>(null);
 
   useEffect(() => {
     setValues({ ...emptyValues, ...(initialValues ?? {}) });
@@ -79,11 +81,12 @@ const ContactFormDialog = ({
   }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    console.log("Submitting form", values);
     event.preventDefault();
     setErrors({});
 
     const payload: any = { ...values };
-    for (const key of ["email", "phone", "address", "note"]) {
+    for (const key of ["email", "phone", "address", "note", "deletedAt"]) {
       if (
         payload[key] === "" ||
         payload[key] === undefined ||
@@ -102,13 +105,21 @@ const ContactFormDialog = ({
           fieldErrors[path] = issue.message;
         } else {
           fieldErrors.name = issue.message;
+          setNonFieldError(issue.message);
         }
       }
       setErrors(fieldErrors);
       return;
     }
 
-    await onSubmit(values as Partial<ContactCreate & ContactUpdate>);
+    try {
+      setNonFieldError(null);
+      await onSubmit(payload as Partial<ContactCreate & ContactUpdate>);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to submit";
+      setNonFieldError(message);
+      return;
+    }
   };
 
   return (
@@ -118,6 +129,11 @@ const ContactFormDialog = ({
           {mode === "edit" ? "Edit contact" : "New contact"}
         </DialogTitle>
         <DialogContent sx={{ pt: 1 }}>
+          {nonFieldError ? (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {nonFieldError}
+            </Alert>
+          ) : null}
           <Box
             sx={{
               display: "grid",
@@ -133,6 +149,8 @@ const ContactFormDialog = ({
               required
               fullWidth
               margin="dense"
+              error={!!errors.name}
+              helperText={errors.name}
             />
             <TextField
               label="Email"
@@ -141,6 +159,8 @@ const ContactFormDialog = ({
               onChange={handleChange("email")}
               fullWidth
               margin="dense"
+              error={!!errors.email}
+              helperText={errors.email}
             />
             <Box
               sx={{
@@ -169,6 +189,8 @@ const ContactFormDialog = ({
               rows={3}
               margin="dense"
               sx={{ gridColumn: { xs: "span 1", md: "span 2" } }}
+              error={!!errors.address}
+              helperText={errors.address}
             />
           </Box>
         </DialogContent>
