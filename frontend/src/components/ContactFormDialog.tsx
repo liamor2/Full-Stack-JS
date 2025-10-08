@@ -13,8 +13,12 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  FormHelperText,
 } from "@mui/material";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import PhoneInput from "react-headless-phone-input";
+import TinyFlag from "tiny-flag-react";
+import { ContactZ } from "@full-stack-js/shared";
 
 interface ContactFormDialogProps {
   open: boolean;
@@ -44,6 +48,9 @@ const ContactFormDialog = ({
   onSubmit,
 }: ContactFormDialogProps) => {
   const [values, setValues] = useState<Partial<ContactCreate>>(emptyValues);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof ContactCreate, string>>
+  >({});
 
   useEffect(() => {
     setValues({ ...emptyValues, ...(initialValues ?? {}) });
@@ -57,8 +64,46 @@ const ContactFormDialog = ({
       }));
     };
 
+  const handlePhoneChange = (phone: string, country?: string) => {
+    setValues((prev) => {
+      if (prev.phone === phone) return prev;
+      return {
+        ...prev,
+        phone,
+      };
+    });
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setErrors({});
+
+    const payload: any = { ...values };
+    for (const key of ["email", "phone", "address", "note"]) {
+      if (
+        payload[key] === "" ||
+        payload[key] === undefined ||
+        payload[key] === null
+      ) {
+        delete payload[key];
+      }
+    }
+
+    const result = ContactZ.safeParse(payload);
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof ContactCreate, string>> = {};
+      for (const issue of result.error.issues) {
+        const path = issue.path[0] as keyof ContactCreate | undefined;
+        if (path) {
+          fieldErrors[path] = issue.message;
+        } else {
+          fieldErrors.name = issue.message;
+        }
+      }
+      setErrors(fieldErrors);
+      return;
+    }
+
     await onSubmit(values as Partial<ContactCreate & ContactUpdate>);
   };
 
@@ -93,13 +138,71 @@ const ContactFormDialog = ({
               fullWidth
               margin="dense"
             />
-            <TextField
-              label="Phone number"
-              value={values.phone ?? ""}
-              onChange={handleChange("phone")}
-              fullWidth
-              margin="dense"
-            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <PhoneInput
+                value={values.phone ?? ""}
+                onChange={handlePhoneChange}
+                defaultCountry="US"
+              >
+                {(phoneProps: any) => {
+                  const iso = (phoneProps?.country ?? "us").toUpperCase();
+                  const inputProps = phoneProps.getInputProps
+                    ? phoneProps.getInputProps({
+                        label: "Phone number",
+                        style: {
+                          flex: 1,
+                          border: "none",
+                          outline: "none",
+                          height: 40,
+                          paddingLeft: 8,
+                        },
+                      })
+                    : {
+                        value: values.phone ?? "",
+                        onChange: (e: any) => handlePhoneChange(e.target.value),
+                      };
+
+                  return (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", pr: 1 }}
+                      >
+                        <TinyFlag country={iso} />
+                      </Box>
+                      <TextField
+                        value={inputProps.value}
+                        onChange={inputProps.onChange}
+                        label={inputProps.label ?? "Phone number"}
+                        fullWidth
+                        margin="dense"
+                        error={!!errors.phone}
+                        helperText={errors.phone}
+                        slotProps={{
+                          htmlInput: {
+                            ...(() => {
+                              const { value, onChange, label, ...rest } =
+                                inputProps || {};
+                              return rest;
+                            })(),
+                          },
+                        }}
+                      />
+                    </Box>
+                  );
+                }}
+              </PhoneInput>
+            </Box>
+            {errors.phone && (
+              <FormHelperText error sx={{ mt: -1, mb: 1 }}>
+                {errors.phone}
+              </FormHelperText>
+            )}
             <TextField
               label="Address"
               value={values.address ?? ""}
