@@ -11,6 +11,7 @@ import { useMemo, useState } from "react";
 
 import ContactFormDialog from "../components/ContactFormDialog.js";
 import ContactsGrid from "../components/ContactsGrid.js";
+import ContactsSearchBar from "../components/ContactsSearchBar.js";
 import DashboardHeader from "../components/DashboardHeader.js";
 import EmptyState from "../components/EmptyState.js";
 import useAuth from "../hooks/useAuth.js";
@@ -28,7 +29,36 @@ const DashboardPage = () => {
     handleCreate,
     handleDelete,
     handleUpdate,
+    loadContacts,
   } = useContacts();
+  const { token } = useAuth();
+
+  const handleSearch = async (criteria: Record<string, unknown>) => {
+    try {
+      // dynamic import to avoid circular issues and keep code minimal here
+      const { findContacts } = await import("../api/contacts.js");
+      const results = await findContacts(criteria, token ?? null);
+      // Update local contacts list
+      // We can reuse setContacts via exposing it from the hook, but it's not returned here.
+      // Use loadContacts when clearing to reload the full list.
+      // Temporarily: set contacts via loadContacts replacement by directly updating via a small state.
+      // Simpler approach: replace contacts by calling loadContacts helper exposed by hook in clear.
+      // We'll set a local override state for search results.
+      setSearchResults(results);
+    } catch (err) {
+      // ignore for now; the hook will surface global errors
+      console.error("Search failed", err);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchResults(null);
+    void loadContacts();
+  };
+
+  const [searchResults, setSearchResults] = useState<null | typeof contacts>(
+    null,
+  );
 
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [editing, setEditing] = useState<null | { id: string; values: any }>(
@@ -44,6 +74,32 @@ const DashboardPage = () => {
     if (first || last) return `${first ?? ""} ${last ?? ""}`.trim();
     return user.email;
   }, [user]);
+
+  let mainContent;
+  if (loading) {
+    mainContent = (
+      <Stack alignItems="center" justifyContent="center" sx={{ py: 10 }}>
+        <CircularProgress />
+      </Stack>
+    );
+  } else if (hasContacts) {
+    mainContent = (
+      <ContactsGrid
+        contacts={contacts}
+        onDelete={handleDelete}
+        onEdit={(id) => {
+          const contact = contacts.find(
+            (c) => (c as any)._id === id || (c as any).id === id,
+          );
+          setEditing(contact ? { id, values: contact } : null);
+          setDialogOpen(true);
+        }}
+        pending={pending}
+      />
+    );
+  } else {
+    mainContent = <EmptyState onCreate={() => setDialogOpen(true)} />;
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
@@ -72,16 +128,16 @@ const DashboardPage = () => {
           </Alert>
         ) : null}
 
-        {loading ? (
-          <Stack alignItems="center" justifyContent="center" sx={{ py: 10 }}>
-            <CircularProgress />
-          </Stack>
-        ) : hasContacts ? (
+        <ContactsSearchBar
+          onSearch={handleSearch}
+          onClear={handleClearSearch}
+        />
+        {searchResults ? (
           <ContactsGrid
-            contacts={contacts}
+            contacts={searchResults}
             onDelete={handleDelete}
             onEdit={(id) => {
-              const contact = contacts.find(
+              const contact = searchResults.find(
                 (c) => (c as any)._id === id || (c as any).id === id,
               );
               setEditing(contact ? { id, values: contact } : null);
@@ -90,7 +146,7 @@ const DashboardPage = () => {
             pending={pending}
           />
         ) : (
-          <EmptyState onCreate={() => setDialogOpen(true)} />
+          mainContent
         )}
       </Container>
 

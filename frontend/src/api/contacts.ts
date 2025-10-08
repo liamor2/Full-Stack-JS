@@ -21,6 +21,17 @@ export async function fetchContact(id: string, token: string) {
   return apiClient.get<ContactResponse>(`/contacts/${id}`, token);
 }
 
+export async function findContacts(
+  criteria: Record<string, unknown>,
+  token?: string | null,
+) {
+  return apiClient.post<ContactResponse[], Record<string, unknown>>(
+    "/contacts/find",
+    criteria,
+    token ?? null,
+  );
+}
+
 export async function createContact(payload: ContactCreate, token: string) {
   return apiClient.post<ContactResponse, ContactCreate>(
     "/contacts",
@@ -48,6 +59,7 @@ export async function deleteContact(id: string, token: string) {
 export default {
   fetchContacts,
   fetchContact,
+  findContacts,
   createContact,
   updateContact,
   deleteContact,
