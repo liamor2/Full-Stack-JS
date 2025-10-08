@@ -66,10 +66,14 @@ const useContacts = () => {
           name: values.name || "",
           owner: ownerId,
           email: values.email || undefined,
-          phone: values.phone || undefined,
+          phones: (values as any).phones || undefined,
           address: values.address || undefined,
           note: values.note || undefined,
         };
+        const only = (values as any).phones.filter(Boolean);
+        if (only.length === 1 && only[0].number) {
+          (payload as any).phone = only[0].number;
+        }
         const created = await createContact(payload, token);
         setContacts((prev: ContactResponse[]) => [created, ...prev]);
         setFeedback("Contact created successfully");
@@ -123,6 +127,17 @@ const useContacts = () => {
         const payload: Record<string, unknown> = {};
         for (const [k, v] of Object.entries(values ?? {})) {
           if (v === undefined) continue;
+          if (k === "phones" && Array.isArray(v)) {
+            const phones = (v as any[])
+              .map((p) => ({ ...(p || {}) }))
+              .filter((p) => p && (p.number || p.label || p.note || p.country))
+              .map(({ _tmpId, ...rest }) => rest);
+            if (phones.length) payload.phones = phones;
+            if (!payload.phone && phones.length === 1 && phones[0].number) {
+              payload.phone = phones[0].number;
+            }
+            continue;
+          }
           if (typeof v === "string" && v.trim() === "") continue;
           payload[k] = v;
         }

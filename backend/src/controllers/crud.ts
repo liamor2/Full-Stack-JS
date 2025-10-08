@@ -107,11 +107,9 @@ export function createCrud(options: CreateCrudOptions): CrudHandlers {
   const create: RequestHandler = (async (req, res, next): Promise<void> => {
     try {
       const data = schema ? schema.parse(req.body) : req.body;
-      // Attach creator/updater if available from authentication middleware
       const anyReq = req as any;
       const userId = anyReq.userId as string | undefined;
       if (userId) {
-        // ensure fields are set on the document
         const d: any = data;
         d.createdBy = d.createdBy ?? userId;
         d.updatedBy = userId;
@@ -125,6 +123,7 @@ export function createCrud(options: CreateCrudOptions): CrudHandlers {
 
   const patch: RequestHandler = (async (req, res, next): Promise<void> => {
     try {
+      console.log("PATCH", req.params);
       const id = String(req.params[idParam]);
       const partial = schema ? schema.partial().parse(req.body) : req.body;
       const anyReq = req as any;
@@ -140,6 +139,7 @@ export function createCrud(options: CreateCrudOptions): CrudHandlers {
         res.status(404).json({ error: "Not found" });
         return;
       }
+      console.log("PATCH RESULT", doc);
       res.json(doc);
     } catch (err) {
       next(err as any);

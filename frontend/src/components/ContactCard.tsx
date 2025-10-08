@@ -17,7 +17,6 @@ const ContactCard = ({ contact, action }: ContactCardProps) => {
     (contact as any).createdBy ?? (contact as any).owner ?? undefined;
   const [ownerEmail, setOwnerEmail] = useState<string | null>(null);
 
-  // Simple in-memory cache shared across instances
   const cache = (ContactCard as any)._ownerEmailCache as
     | Map<string, string>
     | undefined;
@@ -73,14 +72,20 @@ const ContactCard = ({ contact, action }: ContactCardProps) => {
                 {contact.email}
               </Typography>
             ) : null}
-            {contact.phone ? (
+            {Array.isArray((contact as any).phones) &&
+            (contact as any).phones[0] ? (
               <Typography variant="body2" color="text.secondary">
-                {contact.phone}
+                {(contact as any).phones[0].number}
               </Typography>
             ) : null}
             {contact.address ? (
               <Typography variant="body2" color="text.secondary">
                 {contact.address}
+              </Typography>
+            ) : null}
+            {contact.note ? (
+              <Typography variant="body2" color="text.secondary">
+                {contact.note}
               </Typography>
             ) : null}
             <Typography variant="caption" color="text.disabled">
