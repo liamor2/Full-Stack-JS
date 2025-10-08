@@ -6,6 +6,10 @@ const def: Record<string, any> = {
   phone: { type: String },
   address: { type: String },
   note: { type: String },
+  deleted: { type: Boolean, default: false },
+  deletedAt: { type: String, default: null },
+  createdBy: { type: String },
+  updatedBy: { type: String },
 };
 
 const contactSchema = new mongoose.Schema(def, { timestamps: true });
