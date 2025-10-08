@@ -142,13 +142,22 @@ const ContactFormDialog = ({
               fullWidth
               margin="dense"
             />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                width: "100%",
+                gridColumn: { xs: "span 1", md: "span 2" },
+              }}
+            >
               <PhoneInputField
                 value={values.phone}
                 onChange={handlePhoneChange}
                 defaultCountry="FR"
                 error={!!errors.phone}
                 helperText={errors.phone}
+                fullWidth
               />
             </Box>
             <TextField
