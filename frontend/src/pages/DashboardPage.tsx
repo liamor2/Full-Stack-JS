@@ -11,10 +11,9 @@ import { useMemo, useRef, useState } from "react";
 import ContactFormDialog from "../components/ContactFormDialog.js";
 import ContactsSearchBar from "../components/ContactsSearchBar.js";
 import DashboardHeader from "../components/DashboardHeader.js";
-
-import useAuth from "../hooks/useAuth.js";
 import InfiniteContacts from "../components/InfiniteContacts.js";
 import type { InfiniteContactsHandle } from "../components/InfiniteContacts.js";
+import useAuth from "../hooks/useAuth.js";
 import useContacts from "../hooks/useContacts.js";
 
 const DashboardPage = () => {

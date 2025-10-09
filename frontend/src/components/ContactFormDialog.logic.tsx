@@ -1,3 +1,8 @@
+import { ContactZ } from "@full-stack-js/shared";
+import {
+  parsePhoneNumberFromString,
+  type CountryCode,
+} from "libphonenumber-js";
 import {
   useEffect,
   useState,
@@ -5,12 +10,9 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
-import { ContactZ } from "@full-stack-js/shared";
+
 import { ApiError } from "../api/client.js";
-import {
-  parsePhoneNumberFromString,
-  type CountryCode,
-} from "libphonenumber-js";
+
 
 export type Contact = import("@full-stack-js/shared").Contact;
 export type ContactCreate = Omit<
@@ -124,7 +126,7 @@ export function useContactFormDialog(params: {
       }));
     }
     setValues(base);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [initialValues]);
 
   const handleChange =

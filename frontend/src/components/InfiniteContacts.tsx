@@ -1,4 +1,5 @@
 import type { Contact } from "@full-stack-js/shared";
+import { useGSAP } from "@gsap/react";
 import {
   Box,
   Button,
@@ -6,6 +7,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import gsap from "gsap";
 import {
   useCallback,
   useEffect,
@@ -14,12 +16,11 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+
+import { findContacts } from "../api/contacts.js";
+import useAuth from "../hooks/useAuth.js";
 
 import ContactsGrid from "./ContactsGrid.js";
-import useAuth from "../hooks/useAuth.js";
-import { findContacts } from "../api/contacts.js";
 
 type ContactResponse = Contact;
 

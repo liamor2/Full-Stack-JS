@@ -1,13 +1,13 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { Express } from "express";
-import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
 import authRoutes from "./routes/auth.js";
 import contactsRoutes from "./routes/contacts.js";
-import usersRoutes from "./routes/users.js";
 import miscRoutes from "./routes/misc.js";
+import usersRoutes from "./routes/users.js";
 import createSwagger from "./utils/swagger.js";
 
 dotenv.config();

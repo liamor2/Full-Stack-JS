@@ -1,13 +1,15 @@
-import { Box, TextField, IconButton, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import PhoneInputField from "./PhoneInputField.js";
-import type { ChangeEvent } from "react";
-import { getCountryOption } from "../utils/phoneCountries.js";
+import { Box, TextField, IconButton, Button } from "@mui/material";
 import {
   parsePhoneNumberFromString,
   type CountryCode,
 } from "libphonenumber-js";
+import type { ChangeEvent } from "react";
+
+import { getCountryOption } from "../utils/phoneCountries.js";
+
+import PhoneInputField from "./PhoneInputField.js";
 
 interface Props {
   readonly phones?: any[];

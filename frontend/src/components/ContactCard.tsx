@@ -3,8 +3,9 @@ type ContactResponse = Contact;
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import useAuth from "../hooks/useAuth.js";
+
 import { fetchUser } from "../api/users.js";
+import useAuth from "../hooks/useAuth.js";
 
 interface ContactCardProps {
   contact: ContactResponse;

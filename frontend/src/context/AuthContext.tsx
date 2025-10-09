@@ -159,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           persistRefreshToken(response.tokens.refreshToken ?? null);
           scheduleRefresh(response.tokens.accessToken);
         } catch (e) {
-          // eslint-disable-next-line no-console
+           
           console.warn("Failed to schedule refresh after login", e);
         }
         setUser(response.user);
@@ -187,7 +187,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           persistRefreshToken(response.tokens.refreshToken ?? null);
           scheduleRefresh(response.tokens.accessToken);
         } catch (e) {
-          // eslint-disable-next-line no-console
+           
           console.warn("Failed to schedule refresh after register", e);
         }
         setUser(response.user);

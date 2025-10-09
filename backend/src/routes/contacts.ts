@@ -1,11 +1,11 @@
 import { ContactZ } from "@full-stack-js/shared";
-import { z } from "zod";
 import { Router } from "express";
+import { z } from "zod";
 
 import createCrud from "../controllers/crud.js";
+import requireAuth from "../middleware/auth.js";
 import validateBody from "../middleware/validate.js";
 import { ContactModel } from "../models/contact.js";
-import requireAuth from "../middleware/auth.js";
 
 const FindCriteriaZ = ContactZ.partial()
   .extend({
