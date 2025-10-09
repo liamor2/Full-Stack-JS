@@ -6,7 +6,7 @@ import {
   Typography,
   Alert,
 } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import ContactFormDialog from "../components/ContactFormDialog.js";
 import ContactsSearchBar from "../components/ContactsSearchBar.js";
@@ -14,6 +14,7 @@ import DashboardHeader from "../components/DashboardHeader.js";
 
 import useAuth from "../hooks/useAuth.js";
 import InfiniteContacts from "../components/InfiniteContacts.js";
+import type { InfiniteContactsHandle } from "../components/InfiniteContacts.js";
 import useContacts from "../hooks/useContacts.js";
 
 const DashboardPage = () => {
@@ -49,6 +50,7 @@ const DashboardPage = () => {
     null,
   );
   const [reloadKey, setReloadKey] = useState<number>(0);
+  const infiniteRef = useRef<InfiniteContactsHandle | null>(null);
 
   const greeting = useMemo(() => {
     if (!user) return "";
@@ -89,11 +91,21 @@ const DashboardPage = () => {
           onSearch={handleSearch}
           onClear={handleClearSearch}
         />
+
         <InfiniteContacts
+          ref={infiniteRef}
           criteria={searchCriteria}
           pageSize={15}
           pending={pending}
-          onDelete={handleDelete}
+          onDelete={async (id: string) => {
+            await handleDelete(id);
+            const ref = infiniteRef.current;
+            if (ref && typeof ref.removeId === "function") {
+              ref.removeId(id);
+              return;
+            }
+            setReloadKey((k) => k + 1);
+          }}
           onEdit={(id) => {
             const contact = contacts.find(
               (c) => (c as any)._id === id || (c as any).id === id,

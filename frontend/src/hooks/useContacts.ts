@@ -70,7 +70,7 @@ const useContacts = () => {
           address: values.address || undefined,
           note: values.note || undefined,
         };
-        const only = (values as any).phones.filter(Boolean);
+        const only = ((values as any).phones ?? []).filter(Boolean);
         if (only.length === 1 && only[0].number) {
           (payload as any).phone = only[0].number;
         }
@@ -103,6 +103,11 @@ const useContacts = () => {
           ),
         );
         setFeedback("Contact deleted");
+        try {
+          await loadContacts();
+        } catch (e) {
+          console.warn("Failed to refresh contacts after delete", e);
+        }
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to delete contact";
@@ -111,7 +116,7 @@ const useContacts = () => {
         setPending(false);
       }
     },
-    [token],
+    [token, loadContacts],
   );
 
   const handleUpdate = useCallback(
