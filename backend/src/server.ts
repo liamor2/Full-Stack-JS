@@ -1,6 +1,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { Express } from "express";
+import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
 import authRoutes from "./routes/auth.js";
@@ -15,6 +16,7 @@ const app: Express = express();
 const port = Number(process.env.PORT || 3000);
 
 app.use(express.json());
+app.use(cookieParser());
 
 const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 app.use(

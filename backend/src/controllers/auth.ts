@@ -37,7 +37,22 @@ export const register: RequestHandler = (req, res, next) => {
         string,
         any
       >;
-      res.status(201).json(out);
+      const payload: JwtPayload = {
+        sub: String(created._id),
+        email: created.email,
+        role: created.role,
+      };
+      const accessToken = signAccess(payload);
+      const refreshToken = signRefresh(payload);
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax" as const,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      };
+      (res as any).cookie("refreshToken", refreshToken, cookieOptions);
+
+      res.status(201).json({ user: out, tokens: { accessToken } });
     } catch (err) {
       next(err as any);
     }
@@ -70,7 +85,15 @@ export const login: RequestHandler = (req, res, next) => {
 
       const { password: _p, ...out } = user.toObject() as Record<string, any>;
 
-      res.json({ user: out, tokens: { accessToken, refreshToken } });
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax" as const,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      };
+      res.cookie("refreshToken", refreshToken, cookieOptions);
+
+      res.json({ user: out, tokens: { accessToken } });
     } catch (err) {
       next(err as any);
     }
@@ -102,7 +125,10 @@ export const me: RequestHandler = (req, res, next) => {
 export const refresh: RequestHandler = (req, res, next) => {
   (async () => {
     try {
-      const { refreshToken } = req.body;
+      let refreshToken = req.body?.refreshToken as string | undefined;
+      if (!refreshToken && (req as any).cookies) {
+        refreshToken = (req as any).cookies.refreshToken as string | undefined;
+      }
       if (!refreshToken) {
         res.status(400).json({ error: "refreshToken required" });
         return;
@@ -130,6 +156,7 @@ export const logout: RequestHandler = (req, res) => {
   if (refreshToken && typeof refreshToken === "string") {
     blacklistedRefresh.add(refreshToken);
   }
+  (res as any).clearCookie("refreshToken");
   res.json({ ok: true });
 };
 
