@@ -32,6 +32,7 @@ const ContactFormDialog = ({
     values,
     errors,
     nonFieldError,
+    phoneErrors,
     handleChange,
     handlePhoneFieldChange,
     handleAddPhone,
@@ -83,6 +84,7 @@ const ContactFormDialog = ({
 
             <ContactPhones
               phones={values.phones ?? []}
+              phoneErrors={phoneErrors}
               onPhoneChange={handlePhoneFieldChange}
               onAddPhone={handleAddPhone}
               onRemovePhone={handleRemovePhone}

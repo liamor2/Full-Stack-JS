@@ -3,9 +3,15 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PhoneInputField from "./PhoneInputField.js";
 import type { ChangeEvent } from "react";
+import { getCountryOption } from "../utils/phoneCountries.js";
+import {
+  parsePhoneNumberFromString,
+  type CountryCode,
+} from "libphonenumber-js";
 
 interface Props {
   readonly phones?: any[];
+  readonly phoneErrors?: Record<number, string>;
   readonly onPhoneChange: (
     index: number,
     field: string,
@@ -17,10 +23,35 @@ interface Props {
 
 export default function ContactPhones({
   phones = [],
+  phoneErrors,
   onPhoneChange,
   onAddPhone,
   onRemovePhone,
 }: Props) {
+  const getDisplayNumber = (number?: string, iso?: string) => {
+    if (!number) return "";
+    const trimmedIso = iso ? iso.toUpperCase() : undefined;
+    try {
+      const parsed = parsePhoneNumberFromString(
+        number,
+        trimmedIso as CountryCode | undefined,
+      );
+      if (parsed) {
+        return parsed.formatNational();
+      }
+    } catch {
+      /* ignore parse errors */
+    }
+
+    const option = trimmedIso ? getCountryOption(trimmedIso) : undefined;
+    if (option?.dialCode && number.startsWith(option.dialCode)) {
+      return number.slice(option.dialCode.length).trimStart();
+    }
+    return number.startsWith("+") && option?.dialCode
+      ? number.replace(option.dialCode, "").trimStart()
+      : number;
+  };
+
   return (
     <Box sx={{ gridColumn: { xs: "span 1", md: "span 2" } }}>
       {phones.map((p: any, idx: number) => (
@@ -35,25 +66,77 @@ export default function ContactPhones({
           }}
         >
           <Box sx={{ gridColumn: "1 / 2" }}>
-            <PhoneInputField
-              value={p?.number}
-              onChange={(phoneOrEvent: any, country?: string) => {
-                const phoneVal =
-                  typeof phoneOrEvent === "string"
-                    ? phoneOrEvent
-                    : (phoneOrEvent?.target?.value ?? "");
-                onPhoneChange(idx, "number", phoneVal);
-                onPhoneChange(
-                  idx,
-                  "country",
-                  typeof country === "string"
-                    ? country.toUpperCase()
-                    : undefined,
-                );
-              }}
-              defaultCountry="FR"
-              fullWidth
-            />
+            {(() => {
+              const iso =
+                typeof p?.country === "string" ? p.country : undefined;
+              const trimmedIso = iso ? iso.toUpperCase() : undefined;
+              const countryOption = trimmedIso
+                ? getCountryOption(trimmedIso)
+                : undefined;
+              const displayValue = getDisplayNumber(p?.number, trimmedIso);
+
+              const buildInternationalNumber = (
+                inputValue: string,
+                targetIso?: string,
+                targetDialCode?: string,
+              ) => {
+                const normalizedInput = inputValue.trim();
+                if (!normalizedInput) return "";
+                const uppercaseIso = targetIso
+                  ? targetIso.toUpperCase()
+                  : undefined;
+                try {
+                  const parsed = parsePhoneNumberFromString(
+                    normalizedInput,
+                    uppercaseIso as CountryCode | undefined,
+                  );
+                  if (parsed?.isValid()) {
+                    return parsed.number;
+                  }
+                } catch {
+                  /* ignore parse errors */
+                }
+
+                const digitsOnly = normalizedInput.replace(/[^\d]/g, "");
+                if (!digitsOnly) return "";
+                const dial = targetDialCode ?? countryOption?.dialCode;
+                return dial ? `${dial}${digitsOnly}` : digitsOnly;
+              };
+
+              return (
+                <PhoneInputField
+                  value={displayValue}
+                  countryCode={trimmedIso}
+                  onChange={(phone: string) => {
+                    const nextNumber = buildInternationalNumber(
+                      phone,
+                      trimmedIso,
+                      countryOption?.dialCode,
+                    );
+                    if (nextNumber !== (p?.number ?? "")) {
+                      onPhoneChange(idx, "number", nextNumber);
+                    }
+                  }}
+                  onCountryChange={(nextIso, dialCode) => {
+                    const uppercaseNextIso = nextIso.toUpperCase();
+                    const nextNumber = buildInternationalNumber(
+                      displayValue,
+                      uppercaseNextIso,
+                      dialCode,
+                    );
+                    if (nextNumber !== (p?.number ?? "")) {
+                      onPhoneChange(idx, "number", nextNumber);
+                    }
+                    if (uppercaseNextIso !== (trimmedIso ?? undefined)) {
+                      onPhoneChange(idx, "country", uppercaseNextIso);
+                    }
+                  }}
+                  fullWidth
+                  error={Boolean(phoneErrors?.[idx])}
+                  helperText={phoneErrors?.[idx]}
+                />
+              );
+            })()}
           </Box>
           <TextField
             label="Label"

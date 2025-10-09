@@ -68,7 +68,13 @@ const ContactCard = ({ contact, action }: ContactCardProps) => {
               {contact.name}
             </Typography>
             {contact.email ? (
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                component="a"
+                href={`mailto:${contact.email}`}
+                variant="body2"
+                color="primary:light"
+                sx={{ textDecoration: "none" }}
+              >
                 {contact.email}
               </Typography>
             ) : null}

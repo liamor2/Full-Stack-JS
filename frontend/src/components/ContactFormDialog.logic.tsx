@@ -7,6 +7,10 @@ import {
 } from "react";
 import { ContactZ } from "@full-stack-js/shared";
 import { ApiError } from "../api/client.js";
+import {
+  parsePhoneNumberFromString,
+  type CountryCode,
+} from "libphonenumber-js";
 
 export type Contact = import("@full-stack-js/shared").Contact;
 export type ContactCreate = Omit<
@@ -100,6 +104,7 @@ export function useContactFormDialog(params: {
   const [errors, setErrors] = useState<
     Partial<Record<keyof ContactCreate, string>>
   >({});
+  const [phoneErrors, setPhoneErrors] = useState<Record<number, string>>({});
   const [nonFieldError, setNonFieldError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -189,28 +194,104 @@ export function useContactFormDialog(params: {
       }
     }
     if (Array.isArray(payload.phones)) {
-      payload.phones = payload.phones.map((p: any) => {
-        if (!p || typeof p !== "object") return p;
-        const { _tmpId, ...rest } = p;
-        return rest;
-      });
+      payload.phones = payload.phones
+        .map((p: any) => {
+          if (!p || typeof p !== "object") return null;
+          const { _tmpId, number, country, ...rest } = p;
+          if (!number) return null;
+
+          const iso =
+            typeof country === "string" && country
+              ? country.toUpperCase()
+              : undefined;
+          const cleaned = String(number).replace(/[^+\d]/g, "");
+          let parsed;
+          try {
+            parsed = parsePhoneNumberFromString(
+              cleaned,
+              iso as CountryCode | undefined,
+            );
+          } catch {
+            parsed = undefined;
+          }
+
+          if (parsed?.isValid()) {
+            return {
+              ...rest,
+              number: parsed.number,
+              country: parsed.country ?? iso ?? undefined,
+              national: parsed.formatNational(),
+            };
+          }
+
+          if (cleaned.startsWith("+")) {
+            return {
+              ...rest,
+              number: cleaned,
+              country: iso,
+            };
+          }
+
+          if (iso) {
+            try {
+              const attempt = parsePhoneNumberFromString(
+                `+${cleaned}`,
+                iso as CountryCode | undefined,
+              );
+              if (attempt?.isValid()) {
+                return {
+                  ...rest,
+                  number: attempt.number,
+                  country: attempt.country ?? iso,
+                  national: attempt.formatNational(),
+                };
+              }
+            } catch {
+              /* ignore */
+            }
+          }
+
+          const fallbackNumber = cleaned.startsWith("+")
+            ? cleaned
+            : `+${cleaned}`;
+          return {
+            ...rest,
+            number: fallbackNumber,
+            country: iso,
+          };
+        })
+        .filter((p: any) => p?.number);
     }
 
     const result = ContactZ.safeParse(payload);
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof ContactCreate, string>> = {};
+      const phonesMap: Record<number, string> = {};
       for (const issue of result.error.issues) {
-        const path = issue.path[0] as keyof ContactCreate | undefined;
-        if (path) {
-          fieldErrors[path] = issue.message;
-        } else {
-          fieldErrors.name = issue.message;
-          setNonFieldError(issue.message);
+        if (issue.path && issue.path.length > 0) {
+          const top = issue.path[0] as string | undefined;
+          if (top === "phones" && typeof issue.path[1] === "number") {
+            const idx = issue.path[1];
+
+            const prev = phonesMap[idx];
+            phonesMap[idx] = prev ? `${prev}; ${issue.message}` : issue.message;
+            continue;
+          }
+          const path = issue.path[0] as keyof ContactCreate | undefined;
+          if (path) {
+            fieldErrors[path] = issue.message;
+            continue;
+          }
         }
+
+        fieldErrors.name = issue.message;
+        setNonFieldError(issue.message);
       }
       setErrors(fieldErrors);
+      setPhoneErrors(phonesMap);
       return;
     }
+    setPhoneErrors({});
 
     try {
       setNonFieldError(null);
@@ -225,6 +306,7 @@ export function useContactFormDialog(params: {
     values,
     setValues,
     errors,
+    phoneErrors,
     nonFieldError,
     handleChange,
     handlePhoneFieldChange,

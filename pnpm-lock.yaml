@@ -160,7 +160,7 @@ importers:
         specifier: ^3.13.0
         version: 3.13.0
       libphonenumber-js:
-        specifier: ^1.10.27
+        specifier: ^1.12.23
         version: 1.12.23
       react:
         specifier: ^18.3.1
