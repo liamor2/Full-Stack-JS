@@ -1,9 +1,12 @@
+import cors from "cors";
 import dotenv from "dotenv";
 import express, { Express } from "express";
+import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
 import authRoutes from "./routes/auth.js";
 import contactsRoutes from "./routes/contacts.js";
+import usersRoutes from "./routes/users.js";
 import miscRoutes from "./routes/misc.js";
 import createSwagger from "./utils/swagger.js";
 
@@ -13,10 +16,21 @@ const app: Express = express();
 const port = Number(process.env.PORT || 3000);
 
 app.use(express.json());
+app.use(cookieParser());
+
+const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+app.use(
+  cors({
+    exposedHeaders: ["Authorization"],
+    origin: frontendOrigin,
+    credentials: true,
+  }),
+);
 
 app.use("/auth", authRoutes);
 app.use("/", miscRoutes);
 app.use("/contacts", contactsRoutes);
+app.use("/users", usersRoutes);
 
 createSwagger(app, port);
 

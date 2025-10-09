@@ -24,3 +24,4 @@ export {
   AUTH_ME,
 } from "./api/paths.js";
 export { LoginZ, RegisterZ } from "./validators/auth.schema.js";
+export type { Login, Register } from "./validators/auth.schema.js";

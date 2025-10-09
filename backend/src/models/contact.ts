@@ -3,9 +3,21 @@ import mongoose from "mongoose";
 const def: Record<string, any> = {
   name: { type: String, required: true },
   email: { type: String },
-  phone: { type: String },
+  phones: [
+    {
+      number: { type: String },
+      country: { type: String },
+      national: { type: String },
+      label: { type: String },
+      note: { type: String },
+    },
+  ],
   address: { type: String },
   note: { type: String },
+  deleted: { type: Boolean, default: false },
+  deletedAt: { type: String, default: null },
+  createdBy: { type: String },
+  updatedBy: { type: String },
 };
 
 const contactSchema = new mongoose.Schema(def, { timestamps: true });

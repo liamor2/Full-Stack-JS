@@ -1,9 +1,29 @@
-import { greet } from "@full-stack-js/shared";
-import React from "react";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-function App() {
-  return <h1>{greet("Frontend")}</h1>;
-}
+import routes from "./AppRoutes.js";
+import AppLayout from "./components/AppLayout.js";
+import { AuthProvider } from "./context/AuthContext.js";
+import { NotificationProvider } from "./context/NotificationContext.js";
+import theme from "./theme.js";
 
-createRoot(document.getElementById("root")!).render(<App />);
+const router = createBrowserRouter(routes, {
+  future: { v7_startTransition: true },
+} as any);
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <NotificationProvider>
+          <AppLayout>
+            <RouterProvider router={router} />
+          </AppLayout>
+        </NotificationProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  </StrictMode>,
+);

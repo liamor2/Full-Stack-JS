@@ -107,6 +107,13 @@ export function createCrud(options: CreateCrudOptions): CrudHandlers {
   const create: RequestHandler = (async (req, res, next): Promise<void> => {
     try {
       const data = schema ? schema.parse(req.body) : req.body;
+      const anyReq = req as any;
+      const userId = anyReq.userId as string | undefined;
+      if (userId) {
+        const d: any = data;
+        d.createdBy = d.createdBy ?? userId;
+        d.updatedBy = userId;
+      }
       const created = await model.create(data);
       res.status(201).json(created);
     } catch (err) {
@@ -116,8 +123,15 @@ export function createCrud(options: CreateCrudOptions): CrudHandlers {
 
   const patch: RequestHandler = (async (req, res, next): Promise<void> => {
     try {
+      console.log("PATCH", req.params);
       const id = String(req.params[idParam]);
       const partial = schema ? schema.partial().parse(req.body) : req.body;
+      const anyReq = req as any;
+      const userId = anyReq.userId as string | undefined;
+      if (userId) {
+        const p: any = partial;
+        p.updatedBy = userId;
+      }
       const doc: any = await model
         .findByIdAndUpdate(id, partial, { new: true })
         .lean();
@@ -125,6 +139,7 @@ export function createCrud(options: CreateCrudOptions): CrudHandlers {
         res.status(404).json({ error: "Not found" });
         return;
       }
+      console.log("PATCH RESULT", doc);
       res.json(doc);
     } catch (err) {
       next(err as any);
@@ -135,6 +150,12 @@ export function createCrud(options: CreateCrudOptions): CrudHandlers {
     try {
       const id = String(req.params[idParam]);
       const value = schema ? schema.parse(req.body) : req.body;
+      const anyReq = req as any;
+      const userId = anyReq.userId as string | undefined;
+      if (userId) {
+        const v: any = value;
+        v.updatedBy = userId;
+      }
       const doc: any = await model.findOneAndReplace({ _id: id }, value, {
         new: true,
       });
