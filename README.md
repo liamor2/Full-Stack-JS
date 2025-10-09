@@ -36,6 +36,7 @@ packages/
    ```
 
 The backend runs at https://lit-contact-api.liam-gattegno.fr and frontend at https://lit-contact-api.liam-gattegno.fr.
+The documentation is at https://lit-contact-api.liam-gattegno.fr/docs.
 
 ## Shared Package Usage
 
@@ -74,36 +75,9 @@ Key points:
 3. Source code is bind-mounted (`.:/repo`) for live reload; container runs `pnpm dev`.
 4. Node modules kept inside container layers; extra anonymous volumes mounted to avoid host pollution and preserve symlinks.
 
-### Production Hardening (future)
-
-Use multi-stage builds per service:
-
-1. Install with `--frozen-lockfile` and run `pnpm -r build` (or filtered builds) in a builder stage.
-2. Copy only built `dist` (backend) and the compiled frontend `dist` into a slim runtime (e.g. `node:alpine` for backend, `nginx:alpine` for static frontend).
-3. Add a `.npmrc` pinning `node-linker=pnpm` and enabling `prefer-offline=true` if desired.
-
-Optional improvement: introduce a root `.dockerignore` to exclude local build artifacts, e.g.
-
-```
-node_modules
-**/dist
-.git
-.DS_Store
-```
-
 ## Lint & Format
 
 ```bash
 pnpm lint
 pnpm format
 ```
-
-## Future Improvements
-
-- Add testing setup (Vitest / Jest) for shared utilities and backend routes.
-- Add environment variable typing and validation (e.g. using Zod).
-- Split Docker images for production with multi-stage builds.
-
----
-
-Happy hacking!
