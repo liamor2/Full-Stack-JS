@@ -18,11 +18,23 @@ const port = Number(process.env.PORT || 3000);
 app.use(express.json());
 app.use(cookieParser());
 
-const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const frontendHostEnv = process.env.FRONTEND_HOST || "localhost:5173";
+const configuredFrontendOrigin =
+  process.env.FRONTEND_ORIGIN ||
+  (frontendHostEnv.startsWith("http") ? frontendHostEnv : `https://${frontendHostEnv}`);
+
+const allowedOrigins = [configuredFrontendOrigin];
+if (configuredFrontendOrigin.startsWith("https://")) {
+  allowedOrigins.push(configuredFrontendOrigin.replace("https://", "http://"));
+}
 app.use(
   cors({
     exposedHeaders: ["Authorization"],
-    origin: frontendOrigin,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );

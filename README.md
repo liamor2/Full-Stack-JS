@@ -35,7 +35,7 @@ packages/
    pnpm dev:frontend
    ```
 
-The backend runs at http://localhost:3000 and frontend at http://localhost:5173.
+The backend runs at https://lit-contact-api.liam-gattegno.fr and frontend at https://lit-contact-api.liam-gattegno.fr.
 
 ## Shared Package Usage
 

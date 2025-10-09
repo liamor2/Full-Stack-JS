@@ -41,6 +41,7 @@ services:
       MONGO_URI: ${MONGO_URI:-mongodb://root:example@mongodb:27017/app?authSource=admin}
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "100"
+      FRONTEND_HOST: ${FRONTEND_HOST:-lit-contact-frontend.liam-gattegno.fr}
     ports:
       - "3000:3000"
     volumes:
@@ -51,7 +52,24 @@ services:
       mongodb:
         condition: service_healthy
     restart: unless-stopped
-    networks: [app-net]
+    networks: [app-net, proxy]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      # Backend listens on 3000 inside the container
+      - traefik.http.services.backend.loadbalancer.server.port=3000
+
+      # HTTPS router for backend API
+      - traefik.http.routers.backend.rule=Host(`${BACKEND_HOST:-lit-contact-api.liam-gattegno.fr}`)
+      - traefik.http.routers.backend.entrypoints=https-external
+      - traefik.http.routers.backend.tls=true
+      - traefik.http.routers.backend.tls.certresolver=cloudflare
+      - traefik.http.routers.backend.service=backend
+
+      # HTTP -> HTTPS redirect router
+      - traefik.http.routers.backend-redirect.rule=Host(`${BACKEND_HOST:-lit-contact-api.liam-gattegno.fr}`)
+      - traefik.http.routers.backend-redirect.entrypoints=http-external
+      - traefik.http.routers.backend-redirect.middlewares=redirect-to-https
 
   frontend:
     build:
@@ -65,7 +83,7 @@ services:
     command: pnpm dev --host 0.0.0.0
     environment:
       NODE_ENV: development
-      VITE_API_URL: http://localhost:3000
+      VITE_API_URL: https://${BACKEND_HOST:-lit-contact-api.liam-gattegno.fr}
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "100"
     ports:
@@ -78,7 +96,26 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-    networks: [app-net]
+    networks: [app-net, proxy]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      # Vite dev server listens on 5173 inside the container
+      - traefik.http.services.frontend.loadbalancer.server.port=5173
+
+      # HTTPS router
+      - traefik.http.routers.frontend.rule=Host(`${FRONTEND_HOST:-lit-contact-frontend.liam-gattegno.fr}`)
+      - traefik.http.routers.frontend.entrypoints=https-external
+      - traefik.http.routers.frontend.tls=true
+      - traefik.http.routers.frontend.tls.certresolver=cloudflare
+      - traefik.http.routers.frontend.service=frontend
+
+      # HTTP -> HTTPS redirect router
+      - traefik.http.routers.frontend-redirect.rule=Host(`${FRONTEND_HOST:-lit-contact-frontend.liam-gattegno.fr}`)
+      - traefik.http.routers.frontend-redirect.entrypoints=http-external
+      - traefik.http.routers.frontend-redirect.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true
 
 volumes:
   mongo_data:
@@ -89,3 +126,6 @@ volumes:
 networks:
   app-net:
     driver: bridge
+  proxy:
+    external: true
+    name: proxy

@@ -3,6 +3,8 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
 export function createSwagger(app: Express, port: number) {
+  const host = process.env.BACKEND_HOST || "https://lit-contact-api.liam-gattegno.fr";
+
   const swaggerOptions = {
     definition: {
       openapi: "3.0.0",
@@ -18,7 +20,7 @@ export function createSwagger(app: Express, port: number) {
       ],
       servers: [
         {
-          url: `http://localhost:${port}`,
+          url: `http://${host}:${port}`,
         },
       ],
     },

@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+declare const process: any;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -12,13 +14,17 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+
+    allowedHosts: [process.env.FRONTEND_HOST || "lit-contact-frontend.liam-gattegno.fr"],
     watch: {
       usePolling: process.env.CHOKIDAR_USEPOLLING === "true",
       interval: Number(process.env.CHOKIDAR_INTERVAL ?? 100),
     },
     proxy: {
       "/api": {
-        target: process.env.VITE_API_URL || "http://localhost:3000",
+        target: process.env.BACKEND_HOST
+          ? `https://${process.env.BACKEND_HOST}`
+          : "http://localhost:3000",
         changeOrigin: true,
         rewrite: (path: string) => path.replace(/^\/api/, ""),
       },
