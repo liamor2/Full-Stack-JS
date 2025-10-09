@@ -38,6 +38,9 @@ const mongoUri =
   process.env.MONGO_URI || "mongodb://localhost:27017/app?authSource=admin";
 
 async function startServer(): Promise<void> {
+  if (process.env.NODE_ENV === "test") {
+    return;
+  }
   try {
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
